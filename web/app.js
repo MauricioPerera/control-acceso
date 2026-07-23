@@ -26,6 +26,7 @@
     errores: 0,
     tiempoRestante: TIEMPO_POR_TURNO,
     timerHandle: null,
+    celebrados: new Set(),
     current: null,
     createAvatar: null,
     avataaars: null,
@@ -102,10 +103,31 @@
 
   function updateTimerDisplay() {
     const segundos = Math.max(state.tiempoRestante, 0);
-    const m = Math.floor(segundos / 60);
-    const s = segundos % 60;
-    document.getElementById('timer-value').textContent =
-      `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    const pct = Math.max(0, Math.min(100, (segundos / TIEMPO_POR_TURNO) * 100));
+    const fill = document.getElementById('timer-bar-fill');
+    fill.style.width = `${pct}%`;
+    fill.style.background = pct > 50 ? '#3b6' : pct > 20 ? '#e93' : '#e33';
+  }
+
+  function violatedReglas(reglas, attendee) {
+    return reglas.filter((r) => !Engine.evaluateRule(r, attendee));
+  }
+
+  function triggerConfetti() {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    const colors = ['#e33', '#3b6', '#6cf', '#fc3', '#c6f'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDelay = `${Math.random() * 0.3}s`;
+      piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+      container.appendChild(piece);
+    }
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 1600);
   }
 
   function startTimerInterval() {
@@ -136,27 +158,40 @@
     if (!state.gameOver && !state.timerHandle) startTimerInterval();
   }
 
-  function showFeedback(wasCorrect, correctAction, chosenAction) {
+  function showFeedback(wasCorrect, correctAction, chosenAction, violadas) {
     document.getElementById('feedback-title').textContent = wasCorrect ? 'Correcto' : 'Incorrecto';
-    document.getElementById('feedback-body').textContent = wasCorrect
-      ? `Hiciste bien en ${chosenAction}.`
-      : `Elegiste ${chosenAction}, pero lo correcto era ${correctAction}.`;
+    let body;
+    if (wasCorrect) {
+      body = `Hiciste bien en ${chosenAction}.`;
+    } else if (violadas.length > 0) {
+      const motivos = violadas.map((r) => r.descripcion).join(' ');
+      body = `Elegiste ${chosenAction}, pero lo correcto era ${correctAction}. Lo que estaba mal: ${motivos}`;
+    } else {
+      body = `Elegiste ${chosenAction}, pero lo correcto era ${correctAction}: no habia ningun problema con esta invitacion.`;
+    }
+    document.getElementById('feedback-body').textContent = body;
     document.getElementById('feedback-modal').classList.remove('hidden');
   }
 
   function decide(chosenAction) {
     if (state.gameOver || !state.current) return;
+    const violadas = violatedReglas(state.reglasActivas, state.current);
     const correctAction = Engine.determineCorrectAction(state.reglasActivas, state.current);
     const wasCorrect = chosenAction === correctAction;
     if (wasCorrect) {
       state.correct += 1;
       state.dinero += PAGO_POR_CORRECTA;
+      const nuevas = violadas.filter((r) => !state.celebrados.has(r.id));
+      if (nuevas.length > 0) {
+        nuevas.forEach((r) => state.celebrados.add(r.id));
+        triggerConfetti();
+      }
     } else {
       state.incorrect += 1;
       state.errores += 1;
     }
     updateScoreDisplay();
-    showFeedback(wasCorrect, correctAction, chosenAction);
+    showFeedback(wasCorrect, correctAction, chosenAction, violadas);
   }
 
   function advance() {

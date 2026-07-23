@@ -14,6 +14,11 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
   background: #2a2a2a; color: #eee; cursor: pointer; font-size: 0.75rem;
 }
 
+#timer-bar { width: 100%; height: 6px; background: #333; }
+#timer-bar-fill {
+  height: 100%; width: 100%; background: #3b6; transition: width 1s linear, background-color 0.3s;
+}
+
 #app-main { max-width: 480px; margin: 0 auto; padding: 0.75rem; }
 
 #card-section { display: flex; flex-direction: column; align-items: center; min-width: 0; }
@@ -73,4 +78,13 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
 @media (min-width: 700px) {
   #app-main { max-width: 560px; padding: 1.5rem; }
   #app-header { padding: 0.75rem 1.5rem; }
+}
+
+.confetti-container { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 999; }
+.confetti-piece {
+  position: absolute; top: -10px; width: 8px; height: 14px; opacity: 0.9;
+  animation: confetti-fall 1.4s ease-in forwards;
+}
+@keyframes confetti-fall {
+  to { top: 100vh; transform: translateY(0) rotate(720deg); opacity: 0.15; }
 }
