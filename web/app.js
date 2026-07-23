@@ -457,8 +457,12 @@
       document.getElementById('evento-modal').classList.add('hidden');
       showTienda();
     });
-    document.querySelectorAll('#idioma-switch button').forEach((btn) => {
+    document.querySelectorAll('[data-idioma]').forEach((btn) => {
       btn.addEventListener('click', () => I18N.setIdioma(btn.getAttribute('data-idioma')));
+    });
+    document.getElementById('bienvenida-continuar').addEventListener('click', () => {
+      document.getElementById('bienvenida-modal').classList.add('hidden');
+      showDiaModal();
     });
   }
 
@@ -484,7 +488,7 @@
     renderReglamento();
     updateScoreDisplay();
     wireDrag();
-    showDiaModal();
+    document.getElementById('bienvenida-modal').classList.remove('hidden');
   }
 
   init();

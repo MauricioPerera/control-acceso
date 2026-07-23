@@ -16,7 +16,7 @@
     <span>🏦 $<strong id="ahorros-value">0</strong></span>
     <span>❌ <strong id="errores-value">0</strong> / <span id="limite-errores-value">3</span></span>
   </div>
-  <div id="idioma-switch">
+  <div class="idioma-switch">
     <button type="button" data-idioma="es">ES</button>
     <button type="button" data-idioma="en">EN</button>
     <button type="button" data-idioma="pt">PT</button>
@@ -61,6 +61,27 @@
     </div>
   </section>
 </main>
+
+<div id="bienvenida-modal" class="hidden">
+  <div class="modal-box">
+    <h1 data-i18n="app_title">Control de Acceso</h1>
+    <div class="idioma-switch">
+      <button type="button" data-idioma="es">ES</button>
+      <button type="button" data-idioma="en">EN</button>
+      <button type="button" data-idioma="pt">PT</button>
+    </div>
+    <h2 data-i18n="como_jugar_titulo">Cómo jugar</h2>
+    <p data-i18n="como_jugar_p1">Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener" para casos que
+    el reglamento pida detener.</p>
+    <p data-i18n="como_jugar_p2">Cada decision correcta paga $5. Al final de cada turno necesitas juntar el minimo indicado
+    o quedas despedido. Un limite de errores tambien termina la partida. El tiempo del turno es
+    total (no por persona): si se acaba, el turno corta ahi con lo que llegaste a procesar.</p>
+    <p data-i18n="como_jugar_p3">Lo que ganas de mas sobre el requisito se guarda como ahorro. Entre turno y turno hay una
+    tienda para gastarlo: mejoras permanentes para el resto de la partida, y objetos para el
+    proximo turno unicamente (mas tiempo, un comodin de indulgencia, o bajar el requisito).</p>
+    <button id="bienvenida-continuar" type="button" data-i18n="btn_comenzar">Comenzar</button>
+  </div>
+</div>
 
 <div id="feedback-modal" class="hidden">
   <div class="modal-box">

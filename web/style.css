@@ -13,12 +13,12 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
   min-height: 38px; padding: 0.35rem 0.6rem; border-radius: 6px; border: 1px solid #555;
   background: #2a2a2a; color: #eee; cursor: pointer; font-size: 0.75rem;
 }
-#idioma-switch { display: flex; gap: 0.3rem; }
-#idioma-switch button {
+.idioma-switch { display: flex; gap: 0.3rem; }
+.idioma-switch button {
   min-height: 32px; min-width: 36px; padding: 0.25rem 0.4rem; border-radius: 6px; border: 1px solid #555;
   background: #2a2a2a; color: #999; cursor: pointer; font-size: 0.72rem; font-weight: bold;
 }
-#idioma-switch button.activo { background: #2a4a3a; border-color: #3b6; color: #eee; }
+.idioma-switch button.activo { background: #2a4a3a; border-color: #3b6; color: #eee; }
 
 #timer-bar { width: 100%; height: 6px; background: #333; }
 #timer-bar-fill {
@@ -66,12 +66,14 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
 #reglamento-list { padding-left: 1.1rem; font-size: 0.8rem; margin: 0.4rem 0 0.2rem; text-align: left; }
 #reglamento-list li { margin-bottom: 0.5rem; }
 
-#feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal, #dia-modal, #tienda-modal, #evento-modal {
+#bienvenida-modal, #feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal, #dia-modal, #tienda-modal, #evento-modal {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center;
-  justify-content: center; padding: 1rem;
+  justify-content: center; padding: 1rem; z-index: 500;
 }
-#feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden,
+#bienvenida-modal.hidden, #feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden,
 #dia-modal.hidden, #tienda-modal.hidden, #evento-modal.hidden { display: none; }
+#bienvenida-modal .modal-box h1 { font-size: 1.3rem; margin: 0 0 0.75rem; }
+#bienvenida-modal .idioma-switch { justify-content: center; margin-bottom: 1rem; }
 #tienda-modal h3 { font-size: 0.82rem; color: #6cf; margin: 0.75rem 0 0.3rem; }
 #tienda-permanentes-list, #tienda-consumibles-list { list-style: none; padding: 0; margin: 0.4rem 0; font-size: 0.82rem; }
 #tienda-permanentes-list li, #tienda-consumibles-list li {

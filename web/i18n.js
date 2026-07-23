@@ -27,6 +27,7 @@
       btn_continuar: 'Continuar',
       btn_iniciar_jornada: 'Iniciar jornada',
       btn_reiniciar: 'Reiniciar partida',
+      btn_comenzar: 'Comenzar',
       como_jugar_titulo: 'Cómo jugar',
       como_jugar_p1: 'Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener" para casos que el reglamento pida detener.',
       como_jugar_p2: 'Cada decision correcta paga $5. Al final de cada turno necesitas juntar el minimo indicado o quedas despedido. Un limite de errores tambien termina la partida. El tiempo del turno es total (no por persona): si se acaba, el turno corta ahi con lo que llegaste a procesar.',
@@ -117,6 +118,7 @@
       btn_continuar: 'Continue',
       btn_iniciar_jornada: 'Start shift',
       btn_reiniciar: 'Restart game',
+      btn_comenzar: 'Start',
       como_jugar_titulo: 'How to play',
       como_jugar_p1: 'Swipe the card: right = approve, left = reject. Use "Detain" for cases the rulebook calls for detaining.',
       como_jugar_p2: 'Every correct decision pays $5. At the end of each shift you need to reach the quota shown or you get fired. A mistake limit also ends the run. The shift timer is total (not per person): if it runs out, the shift ends right there with whatever you managed to process.',
@@ -207,6 +209,7 @@
       btn_continuar: 'Continuar',
       btn_iniciar_jornada: 'Iniciar turno',
       btn_reiniciar: 'Reiniciar partida',
+      btn_comenzar: 'Comecar',
       como_jugar_titulo: 'Como jogar',
       como_jugar_p1: 'Arraste o cartao: direita = aprovar, esquerda = rejeitar. Use "Deter" para casos que o regulamento pedir deter.',
       como_jugar_p2: 'Cada decisao correta paga $5. No final de cada turno voce precisa atingir o minimo indicado ou sera demitido. Um limite de erros tambem termina a partida. O tempo do turno e total (nao por pessoa): se acabar, o turno termina ali com o que voce conseguiu processar.',
@@ -289,7 +292,7 @@
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       el.textContent = t(el.getAttribute('data-i18n'));
     });
-    document.querySelectorAll('#idioma-switch button').forEach((btn) => {
+    document.querySelectorAll('[data-idioma]').forEach((btn) => {
       btn.classList.toggle('activo', btn.getAttribute('data-idioma') === state.idioma);
     });
     document.documentElement.lang = state.idioma;
