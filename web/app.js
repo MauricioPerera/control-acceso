@@ -10,8 +10,32 @@
   const LIMITE_ERRORES = 3;
   const TIEMPO_POR_TURNO = 60;
 
+  const UPGRADES = [
+    { id: 'mas-tiempo', nombre: 'Reloj mas grande', costo: 15, descripcion: '+15 segundos por turno de aqui en adelante.' },
+    { id: 'mano-dura', nombre: 'Mano dura', costo: 20, descripcion: 'Tolera 1 error mas antes de quedar despedido.' },
+    { id: 'contactos', nombre: 'Contactos en la administracion', costo: 15, descripcion: 'El requisito minimo baja $5 de aqui en adelante.' },
+  ];
+
+  const EVENTOS = [
+    {
+      texto: 'Un supervisor sorpresa audita tu puesto y te felicita por tu prolijidad.',
+      resultado: 'Ganaste $10 de bono.',
+      efecto: (s) => { s.ahorros += 10; },
+    },
+    {
+      texto: 'Un asistente intenta sobornarte para que ignores el reglamento. Lo rechazas, pero perdes tiempo con el papeleo de la denuncia.',
+      resultado: 'Perdiste $5 en gastos administrativos.',
+      efecto: (s) => { s.ahorros = Math.max(0, s.ahorros - 5); },
+    },
+    {
+      texto: 'Corre el rumor de que van a subir el requisito diario. Guardas unos pesos extra por las dudas.',
+      resultado: 'No paso nada, pero quedas alerta.',
+      efecto: () => {},
+    },
+  ];
+
   function requisitoParaTurno(turnoIndex) {
-    return 10 + turnoIndex * 2;
+    return Math.max(0, 10 + turnoIndex * 2 - state.requisitoDescuento);
   }
 
   const state = {
@@ -24,6 +48,11 @@
     incorrect: 0,
     dinero: 0,
     errores: 0,
+    ahorros: 0,
+    comprados: new Set(),
+    timeBonus: 0,
+    erroresBonus: 0,
+    requisitoDescuento: 0,
     tiempoRestante: TIEMPO_POR_TURNO,
     timerHandle: null,
     celebrados: new Set(),
@@ -117,11 +146,14 @@
     document.getElementById('dinero-value').textContent = String(state.dinero);
     document.getElementById('requisito-value').textContent = String(requisitoParaTurno(state.turnoIndex));
     document.getElementById('errores-value').textContent = String(state.errores);
+    document.getElementById('limite-errores-value').textContent = String(LIMITE_ERRORES + state.erroresBonus);
+    document.getElementById('ahorros-value').textContent = String(state.ahorros);
   }
 
   function updateTimerDisplay() {
     const segundos = Math.max(state.tiempoRestante, 0);
-    const pct = Math.max(0, Math.min(100, (segundos / TIEMPO_POR_TURNO) * 100));
+    const total = TIEMPO_POR_TURNO + state.timeBonus;
+    const pct = Math.max(0, Math.min(100, (segundos / total) * 100));
     const fill = document.getElementById('timer-bar-fill');
     fill.style.width = `${pct}%`;
     fill.style.background = pct > 50 ? '#3b6' : pct > 20 ? '#e93' : '#e33';
@@ -160,7 +192,7 @@
   }
 
   function startTimer() {
-    state.tiempoRestante = TIEMPO_POR_TURNO;
+    state.tiempoRestante = TIEMPO_POR_TURNO + state.timeBonus;
     updateTimerDisplay();
     startTimerInterval();
   }
@@ -229,6 +261,7 @@
       endGame('dinero', requisito);
       return;
     }
+    state.ahorros += state.dinero - requisito;
     const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
     if (!nextTurnoData) {
       endGame('victoria');
@@ -238,7 +271,7 @@
     document.getElementById('end-close').textContent = 'Continuar';
     document.getElementById('end-body').textContent =
       `Turno ${state.turnoIndex + 1} completo. Ganaste $${state.dinero} (requisito $${requisito}). ` +
-      `Nueva regla: ${nextTurnoData.regla.descripcion}`;
+      `Ahorros: $${state.ahorros}. Nueva regla: ${nextTurnoData.regla.descripcion}`;
     document.getElementById('end-modal').classList.remove('hidden');
   }
 
@@ -246,7 +279,7 @@
     state.gameOver = true;
     stopTimer();
     const mensajes = {
-      errores: `Alcanzaste el limite de ${LIMITE_ERRORES} errores. Quedas despedido.`,
+      errores: `Alcanzaste el limite de ${LIMITE_ERRORES + state.erroresBonus} errores. Quedas despedido.`,
       dinero: `No llegaste al minimo del turno ($${extra}, ganaste $${state.dinero}). No podes pagar tus cuentas.`,
       victoria: `Cumpliste todos los turnos. Correctas: ${state.correct}. Incorrectas: ${state.incorrect}.`,
     };
@@ -271,7 +304,59 @@
       renderReglamento();
       updateScoreDisplay();
     }
-    showDiaModal();
+    showEntreDias();
+  }
+
+  function showEntreDias() {
+    if (state.rng() < 0.5) {
+      showTienda();
+    } else {
+      showEvento();
+    }
+  }
+
+  function showTienda() {
+    const list = document.getElementById('tienda-list');
+    list.innerHTML = '';
+    const disponibles = UPGRADES.filter((u) => !state.comprados.has(u.id));
+    if (disponibles.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Ya compraste todas las mejoras disponibles.';
+      list.appendChild(li);
+    }
+    for (const upgrade of disponibles) {
+      const li = document.createElement('li');
+      li.textContent = `${upgrade.nombre}: ${upgrade.descripcion} `;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = `Comprar $${upgrade.costo}`;
+      btn.disabled = state.ahorros < upgrade.costo;
+      btn.addEventListener('click', () => comprarUpgrade(upgrade));
+      li.appendChild(btn);
+      list.appendChild(li);
+    }
+    document.getElementById('tienda-ahorros').textContent = String(state.ahorros);
+    document.getElementById('tienda-modal').classList.remove('hidden');
+  }
+
+  function comprarUpgrade(upgrade) {
+    if (state.ahorros < upgrade.costo || state.comprados.has(upgrade.id)) return;
+    state.ahorros -= upgrade.costo;
+    state.comprados.add(upgrade.id);
+    if (upgrade.id === 'mas-tiempo') state.timeBonus += 15;
+    if (upgrade.id === 'mano-dura') state.erroresBonus += 1;
+    if (upgrade.id === 'contactos') state.requisitoDescuento += 5;
+    updateScoreDisplay();
+    showTienda();
+  }
+
+  function showEvento() {
+    const evento = EVENTOS[Math.floor(state.rng() * EVENTOS.length)];
+    evento.efecto(state);
+    document.getElementById('evento-texto').textContent = evento.texto;
+    document.getElementById('evento-resultado').textContent = `${evento.resultado} Ahorros: $${state.ahorros}.`;
+    updateScoreDisplay();
+    document.getElementById('evento-modal').classList.remove('hidden');
   }
 
   function wireDrag() {
@@ -316,7 +401,7 @@
     document.getElementById('btn-detener').addEventListener('click', () => decide('detener'));
     document.getElementById('feedback-close').addEventListener('click', () => {
       document.getElementById('feedback-modal').classList.add('hidden');
-      if (state.errores >= LIMITE_ERRORES) {
+      if (state.errores >= LIMITE_ERRORES + state.erroresBonus) {
         endGame('errores');
       } else {
         advance();
@@ -339,6 +424,14 @@
     document.getElementById('reglamento-close').addEventListener('click', () => {
       document.getElementById('reglamento-modal').classList.add('hidden');
       resumeTimer();
+    });
+    document.getElementById('tienda-continuar').addEventListener('click', () => {
+      document.getElementById('tienda-modal').classList.add('hidden');
+      showDiaModal();
+    });
+    document.getElementById('evento-continuar').addEventListener('click', () => {
+      document.getElementById('evento-modal').classList.add('hidden');
+      showDiaModal();
     });
   }
 

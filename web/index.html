@@ -13,7 +13,8 @@
     <span>Hoy: <strong id="fecha-actual"></strong></span>
     <span>Turno: <strong id="turno-value">1</strong> / <span id="turno-total">5</span></span>
     <span>💰 $<strong id="dinero-value">0</strong> / $<strong id="requisito-value">0</strong></span>
-    <span>❌ <strong id="errores-value">0</strong> / 3</span>
+    <span>🏦 $<strong id="ahorros-value">0</strong></span>
+    <span>❌ <strong id="errores-value">0</strong> / <span id="limite-errores-value">3</span></span>
   </div>
   <div id="header-buttons">
     <button type="button" id="btn-como-jugar">Cómo jugar</button>
@@ -98,6 +99,24 @@
     <p>Requisito minimo del turno: $<strong id="dia-requisito"></strong></p>
     <ul id="dia-reglas-list"></ul>
     <button id="dia-iniciar" type="button">Iniciar jornada</button>
+  </div>
+</div>
+
+<div id="tienda-modal" class="hidden">
+  <div class="modal-box">
+    <h2>Mejoras</h2>
+    <p>Ahorros disponibles: $<strong id="tienda-ahorros">0</strong></p>
+    <ul id="tienda-list"></ul>
+    <button id="tienda-continuar" type="button">Continuar</button>
+  </div>
+</div>
+
+<div id="evento-modal" class="hidden">
+  <div class="modal-box">
+    <h2>Entre turnos</h2>
+    <p id="evento-texto"></p>
+    <p id="evento-resultado"></p>
+    <button id="evento-continuar" type="button">Continuar</button>
   </div>
 </div>
 

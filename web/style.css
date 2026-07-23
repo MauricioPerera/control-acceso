@@ -60,11 +60,22 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
 #reglamento-list { padding-left: 1.1rem; font-size: 0.8rem; margin: 0.4rem 0 0.2rem; text-align: left; }
 #reglamento-list li { margin-bottom: 0.5rem; }
 
-#feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal, #dia-modal {
+#feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal, #dia-modal, #tienda-modal, #evento-modal {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center;
   justify-content: center; padding: 1rem;
 }
-#feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden, #dia-modal.hidden { display: none; }
+#feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden,
+#dia-modal.hidden, #tienda-modal.hidden, #evento-modal.hidden { display: none; }
+#tienda-list { list-style: none; padding: 0; margin: 0.4rem 0; font-size: 0.82rem; }
+#tienda-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  background: #262626; border-radius: 6px; padding: 0.5rem 0.6rem; margin-bottom: 0.5rem;
+}
+#tienda-list button {
+  min-height: 36px; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid #555;
+  background: #2a2a2a; color: #eee; cursor: pointer; font-size: 0.78rem; white-space: nowrap;
+}
+#tienda-list button:disabled { opacity: 0.4; cursor: not-allowed; }
 .modal-box {
   background: #1c1c1c; padding: 1.25rem; border-radius: 8px; width: min(360px, 92vw); text-align: center;
   max-height: 85vh; overflow-y: auto;
