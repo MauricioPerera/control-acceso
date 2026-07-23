@@ -9,6 +9,10 @@ function matchesFilter(character, filter) {
       return val >= filter.min && val <= filter.max;
     case 'boolean':
       return (character[filter.field] !== filter.noneValue) === filter.expected;
+    case 'paridad':
+      return (parseInt(character[filter.field], 10) % 2 === 0) === filter.esPar;
+    case 'todas':
+      return filter.filtros.every((f) => matchesFilter(character, f));
     default:
       throw new Error(`Unknown filter type: ${filter.type}`);
   }

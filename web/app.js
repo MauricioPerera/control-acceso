@@ -91,12 +91,39 @@
     return avatar.toString();
   }
 
+  function renderDescripcionGen(gen) {
+    switch (gen.kind) {
+      case 'campo-prohibido':
+        return I18N.t('gen_campo_prohibido', { accion: accionTexto(gen.accion), campo: I18N.t(`campo_${gen.campo}`), valor: gen.valor });
+      case 'categoria-prohibida':
+        return I18N.t('gen_categoria_prohibida', { valor: gen.valor });
+      case 'codigo-especifico':
+        return I18N.t('gen_codigo_especifico', { campo: I18N.t(`campo_${gen.campo}`), valor: gen.valor });
+      case 'paridad':
+        return I18N.t(gen.esPar ? 'gen_paridad_par' : 'gen_paridad_impar', { campo: I18N.t(`campo_${gen.campo}`) });
+      case 'compuesta': {
+        const conj = I18N.t('conjuncion_y');
+        const condiciones = gen.condiciones.map((c) => `${I18N.t(`campo_${c.campo}`)} "${c.valor}"`).join(` ${conj} `);
+        return I18N.t('gen_compuesta', { accion: accionTexto(gen.accion), condiciones });
+      }
+      case 'vigencia-modificada':
+        return gen.modo === 'exacta' ? I18N.t('gen_vigencia_exacta') : I18N.t('gen_vigencia_ventana', { dias: gen.dias });
+      default:
+        return '';
+    }
+  }
+
+  function textoRegla(regla) {
+    if (regla.descripcionGen) return renderDescripcionGen(regla.descripcionGen);
+    return I18N.t(regla.descripcion);
+  }
+
   function renderReglasList(ulId) {
     const list = document.getElementById(ulId);
     list.innerHTML = '';
     for (const regla of state.reglasActivas) {
       const li = document.createElement('li');
-      li.textContent = I18N.t(regla.descripcion);
+      li.textContent = textoRegla(regla);
       list.appendChild(li);
     }
   }
@@ -220,7 +247,7 @@
       body = I18N.t('feedback_bien', { accion: accionTexto(chosenAction) });
       if (bonoDetencion > 0) body += I18N.t('feedback_bonus_detencion', { bonus: bonoDetencion });
     } else if (violadas.length > 0) {
-      const motivos = violadas.map((r) => I18N.t(r.descripcion)).join(' ');
+      const motivos = violadas.map((r) => textoRegla(r)).join(' ');
       body = I18N.t('feedback_mal_con_motivo', {
         elegido: accionTexto(chosenAction), correcto: accionTexto(correctAction), motivos,
       });
@@ -274,6 +301,18 @@
     renderCard();
   }
 
+  function obtenerSiguienteTurnoInfo() {
+    const fija = window.TURNOS[state.turnoIndex + 1];
+    if (fija) return { tipo: 'fija', regla: resolveHoyPlaceholder(fija.regla) };
+    return window.generarSiguienteTurno(state.turnoIndex + 1, state.reglasActivas, state.rng);
+  }
+
+  function textoSiguienteTurno(info) {
+    if (info.tipo === 'fija') return textoRegla(info.regla);
+    if (info.accion === 'agregar') return textoRegla(info.regla);
+    return renderDescripcionGen(info.descripcionGen);
+  }
+
   function endTurno() {
     stopTimer();
     const requisito = requisitoParaTurno(state.turnoIndex);
@@ -284,11 +323,7 @@
       return;
     }
     state.ahorros += state.dinero - requisito;
-    const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
-    if (!nextTurnoData) {
-      endGame('victoria');
-      return;
-    }
+    state.proximoTurnoInfo = obtenerSiguienteTurnoInfo();
     document.getElementById('end-title').textContent = I18N.t('turno_completo_titulo');
     document.getElementById('end-close').textContent = I18N.t('btn_continuar');
     document.getElementById('end-body').textContent = I18N.t('turno_completo_cuerpo', {
@@ -296,7 +331,7 @@
       ganado: state.dinero,
       requisito,
       ahorros: state.ahorros,
-      regla: I18N.t(nextTurnoData.regla.descripcion),
+      regla: textoSiguienteTurno(state.proximoTurnoInfo),
     });
     document.getElementById('end-modal').classList.remove('hidden');
   }
@@ -307,12 +342,30 @@
     const mensajes = {
       errores: I18N.t('fin_errores', { limite: LIMITE_ERRORES + state.erroresBonus }),
       dinero: I18N.t('fin_dinero', { requisito: extra, ganado: state.dinero }),
-      victoria: I18N.t('fin_victoria', { correctas: state.correct, incorrectas: state.incorrect }),
     };
-    document.getElementById('end-title').textContent = I18N.t(reason === 'victoria' ? 'victoria_titulo' : 'fin_partida_titulo');
+    document.getElementById('end-title').textContent = I18N.t('fin_partida_titulo');
     document.getElementById('end-close').textContent = I18N.t('btn_reiniciar');
     document.getElementById('end-body').textContent = mensajes[reason];
     document.getElementById('end-modal').classList.remove('hidden');
+  }
+
+  function aplicarSiguienteTurno(info) {
+    if (info.tipo === 'fija') {
+      state.reglasActivas.push(info.regla);
+      return;
+    }
+    if (info.accion === 'agregar') {
+      state.reglasActivas.push(info.regla);
+      return;
+    }
+    const idx = state.reglasActivas.findIndex((r) => r.id === info.reglaId);
+    if (idx === -1) return;
+    state.reglasActivas[idx] = {
+      ...state.reglasActivas[idx],
+      filtro: info.filtroNuevo,
+      vigenciaEndurecida: info.vigenciaEndurecida,
+      descripcionGen: info.descripcionGen,
+    };
   }
 
   function onEndModalClose() {
@@ -321,15 +374,12 @@
       location.reload();
       return;
     }
-    const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
-    if (nextTurnoData) {
-      state.turnoIndex += 1;
-      state.reglasActivas = window.TURNOS.slice(0, state.turnoIndex + 1).map((t) => resolveHoyPlaceholder(t.regla));
-      state.attendeeIndexInTurno = 0;
-      state.dinero = 0;
-      renderReglamento();
-      updateScoreDisplay();
-    }
+    state.turnoIndex += 1;
+    aplicarSiguienteTurno(state.proximoTurnoInfo);
+    state.attendeeIndexInTurno = 0;
+    state.dinero = 0;
+    renderReglamento();
+    updateScoreDisplay();
     showEntreDias();
   }
 
@@ -489,7 +539,6 @@
     state.createAvatar = createAvatar;
     state.avataaars = avataaars;
 
-    document.getElementById('turno-total').textContent = String(window.TURNOS.length);
     I18N.onChange = refrescarTextosDinamicos;
     I18N.aplicarTraducciones();
     renderReglamento();

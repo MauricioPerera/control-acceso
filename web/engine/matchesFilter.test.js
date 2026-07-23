@@ -57,6 +57,46 @@ test('boolean: expected=false y valor ES noneValue -> true', () => {
   assert.strictEqual(matchesFilter(character, filter), true);
 });
 
+test('paridad: numero par y esPar=true -> true', () => {
+  const character = { codigoBarras: '37888998' };
+  assert.strictEqual(matchesFilter(character, { type: 'paridad', field: 'codigoBarras', esPar: true }), true);
+});
+
+test('paridad: numero impar y esPar=true -> false', () => {
+  const character = { codigoBarras: '37888999' };
+  assert.strictEqual(matchesFilter(character, { type: 'paridad', field: 'codigoBarras', esPar: true }), false);
+});
+
+test('paridad: numero impar y esPar=false -> true', () => {
+  const character = { codigoBarras: '37888999' };
+  assert.strictEqual(matchesFilter(character, { type: 'paridad', field: 'codigoBarras', esPar: false }), true);
+});
+
+test('todas: todos los sub-filtros matchean -> true', () => {
+  const character = { genero: 'masculino', nacionalidad: 'chilena', apellido: 'Rojas' };
+  const filter = {
+    type: 'todas',
+    filtros: [
+      { type: 'exact', field: 'genero', value: 'masculino' },
+      { type: 'exact', field: 'nacionalidad', value: 'chilena' },
+      { type: 'exact', field: 'apellido', value: 'Rojas' },
+    ],
+  };
+  assert.strictEqual(matchesFilter(character, filter), true);
+});
+
+test('todas: un sub-filtro no matchea -> false', () => {
+  const character = { genero: 'femenino', nacionalidad: 'chilena', apellido: 'Rojas' };
+  const filter = {
+    type: 'todas',
+    filtros: [
+      { type: 'exact', field: 'genero', value: 'masculino' },
+      { type: 'exact', field: 'nacionalidad', value: 'chilena' },
+    ],
+  };
+  assert.strictEqual(matchesFilter(character, filter), false);
+});
+
 test('type desconocido -> lanza error', () => {
   const character = { genero: 'femenino' };
   assert.throws(() => matchesFilter(character, { type: 'nope', field: 'genero' }));
