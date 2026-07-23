@@ -10,6 +10,7 @@
 <header id="app-header">
   <h1>Control de Acceso</h1>
   <div id="score-panel">
+    <span>Hoy: <strong id="fecha-actual"></strong></span>
     <span>Turno: <strong id="turno-value">1</strong> / <span id="turno-total">5</span></span>
     <span>Correctas: <strong id="correct-value">0</strong></span>
     <span>Incorrectas: <strong id="incorrect-value">0</strong></span>
@@ -25,6 +26,7 @@
         <div id="avatar-container"></div>
         <div class="doc-box">
           <h3>DNI</h3>
+          <p><span class="label">Nº DNI:</span> <span id="dni-numero"></span></p>
           <p><span class="label">Nombre:</span> <span id="dni-nombre"></span> <span id="dni-apellido"></span></p>
           <p><span class="label">Nacimiento:</span> <span id="dni-fecha"></span></p>
           <p><span class="label">Genero:</span> <span id="dni-genero"></span></p>
@@ -35,7 +37,10 @@
           <h3>Invitacion</h3>
           <p><span class="label">Nombre:</span> <span id="inv-nombre"></span> <span id="inv-apellido"></span></p>
           <p><span class="label">Categoria:</span> <span id="inv-categoria"></span></p>
-          <p><span class="label">Vigente:</span> <span id="inv-vigente"></span></p>
+          <p><span class="label">Vigencia:</span> <span id="inv-fecha-vigencia"></span></p>
+          <p><span class="label">Cod. barras:</span> <span id="inv-codigo-barras"></span></p>
+          <p><span class="label">Sello:</span> <span id="inv-sello"></span></p>
+          <p><span class="label">QR:</span> <span id="inv-qr"></span></p>
         </div>
         <div id="swipe-stamp" class="hidden"></div>
       </div>
@@ -76,9 +81,11 @@
 <script src="../data/generator/mutate.js"></script>
 <script src="../data/generator/avatarParams.js"></script>
 <script src="../data/generator/rollTestimonyValue.js"></script>
-<script src="../data/generator/generateInvitacion.js"></script>
+<script src="../data/generator/generateInvitacionIdentidad.js"></script>
+<script src="../data/generator/generateInvitacionEstado.js"></script>
 <script src="engine/matchesFilter.js"></script>
 <script src="engine/matchesIdentity.js"></script>
+<script src="engine/matchesBarcode.js"></script>
 <script src="engine/evaluateRule.js"></script>
 <script src="engine/determineCorrectAction.js"></script>
 <script src="engine/interpretSwipe.js"></script>

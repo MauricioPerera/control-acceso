@@ -2,9 +2,10 @@
   const SWIPE_THRESHOLD = 100;
   const DNI_KEYS = [
     'nombre', 'apellido', 'fechaNacimiento', 'genero', 'nacionalidad', 'ciudad',
-    'lentes', 'velloFacial', 'tonoPiel', 'colorPelo', 'peinado',
+    'lentes', 'velloFacial', 'tonoPiel', 'colorPelo', 'peinado', 'numeroDni',
   ];
-  const INVITACION_CONFIG = { matchProbability: 0.7, vigenciaProbability: 0.85 };
+  const MATCH_PROBABILITY = 0.7;
+  const ESTADO_CONFIG = { selloProbability: 0.85, qrProbability: 0.85 };
 
   const state = {
     rng: null,
@@ -29,9 +30,19 @@
     for (const key of DNI_KEYS) templateBase[key] = null;
     const dni = Engine.mutateProfile(templateBase, 1, Domains.DOMAINS, state.rng);
     dni.id = `char-${state.idCounter++}`;
-    const invitacion = Engine.generateInvitacion(dni, INVITACION_CONFIG, Domains.DOMAINS, state.rng);
+    const identidad = Engine.generateInvitacionIdentidad(dni, MATCH_PROBABILITY, Domains.DOMAINS, state.rng);
+    const estado = Engine.generateInvitacionEstado(ESTADO_CONFIG, Domains.DOMAINS, state.rng);
+    const invitacion = { ...identidad, ...estado };
     const avatarParams = Engine.assignAvatarParams(dni);
     return { dni, invitacion, avatarParams };
+  }
+
+  function resolveHoyPlaceholder(regla) {
+    if (!regla.filtro) return regla;
+    const filtro = { ...regla.filtro };
+    if (filtro.min === '__HOY__') filtro.min = Domains.FECHA_ACTUAL;
+    if (filtro.max === '__HOY__') filtro.max = Domains.FECHA_ACTUAL;
+    return { ...regla, filtro };
   }
 
   function avatarSvgFor(attendee) {
@@ -52,6 +63,7 @@
   function renderCard() {
     const a = state.current;
     document.getElementById('avatar-container').innerHTML = avatarSvgFor(a);
+    document.getElementById('dni-numero').textContent = a.dni.numeroDni;
     document.getElementById('dni-nombre').textContent = a.dni.nombre;
     document.getElementById('dni-apellido').textContent = a.dni.apellido;
     document.getElementById('dni-fecha').textContent = a.dni.fechaNacimiento;
@@ -61,7 +73,10 @@
     document.getElementById('inv-nombre').textContent = a.invitacion.nombre;
     document.getElementById('inv-apellido').textContent = a.invitacion.apellido;
     document.getElementById('inv-categoria').textContent = a.invitacion.categoriaAcceso;
-    document.getElementById('inv-vigente').textContent = a.invitacion.vigente ? 'si' : 'no';
+    document.getElementById('inv-fecha-vigencia').textContent = a.invitacion.fechaVigencia;
+    document.getElementById('inv-codigo-barras').textContent = a.invitacion.codigoBarras;
+    document.getElementById('inv-sello').textContent = a.invitacion.selloValido ? 'valido' : 'invalido';
+    document.getElementById('inv-qr').textContent = a.invitacion.qrValido ? 'valido' : 'invalido';
     card.style.transform = '';
     stamp.className = 'hidden';
   }
@@ -123,7 +138,7 @@
     const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
     if (nextTurnoData) {
       state.turnoIndex += 1;
-      state.reglasActivas = window.TURNOS.slice(0, state.turnoIndex + 1).map((t) => t.regla);
+      state.reglasActivas = window.TURNOS.slice(0, state.turnoIndex + 1).map((t) => resolveHoyPlaceholder(t.regla));
       state.attendeeIndexInTurno = 0;
       renderReglamento();
       updateScoreDisplay();
@@ -181,7 +196,8 @@
 
   async function init() {
     state.rng = Engine.createSeededRng((Date.now() >>> 0));
-    state.reglasActivas = [window.TURNOS[0].regla];
+    state.reglasActivas = [resolveHoyPlaceholder(window.TURNOS[0].regla)];
+    document.getElementById('fecha-actual').textContent = Domains.FECHA_ACTUAL;
 
     const { createAvatar } = await import('https://esm.sh/@dicebear/core@9');
     const { avataaars } = await import('https://esm.sh/@dicebear/collection@9');

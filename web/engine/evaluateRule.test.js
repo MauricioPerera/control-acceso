@@ -3,8 +3,8 @@ const assert = require('node:assert/strict');
 const { evaluateRule } = require('./evaluateRule.js');
 
 const attendee = {
-  dni: { nombre: 'Ana', apellido: 'Gomez', nacionalidad: 'argentina', fechaNacimiento: '2000-01-01' },
-  invitacion: { nombre: 'Ana', apellido: 'Gomez', categoriaAcceso: 'vip', vigente: true },
+  dni: { nombre: 'Ana', apellido: 'Gomez', nacionalidad: 'argentina', fechaNacimiento: '2000-01-01', numeroDni: '30111222' },
+  invitacion: { nombre: 'Ana', apellido: 'Gomez', categoriaAcceso: 'vip', vigente: true, codigoBarras: '30111222' },
 };
 
 test('tipo documento: filtro se cumple y esperado=true -> regla OK (true)', () => {
@@ -45,4 +45,15 @@ test('tipo identidad: nombre no coincide -> false', () => {
 
 test('tipo desconocido -> lanza error', () => {
   assert.throws(() => evaluateRule({ tipo: 'nope' }, attendee));
+});
+
+test('tipo codigoBarras: numeroDni coincide con codigoBarras -> true', () => {
+  const regla = { tipo: 'codigoBarras' };
+  assert.strictEqual(evaluateRule(regla, attendee), true);
+});
+
+test('tipo codigoBarras: numeroDni no coincide -> false', () => {
+  const regla = { tipo: 'codigoBarras' };
+  const fraud = { dni: { numeroDni: '30111222' }, invitacion: { codigoBarras: '31222333' } };
+  assert.strictEqual(evaluateRule(regla, fraud), false);
 });

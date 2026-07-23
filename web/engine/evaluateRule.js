@@ -5,6 +5,9 @@ function evaluateRule(regla, attendee) {
   const matchesIdentityFn = (typeof module !== 'undefined')
     ? require('./matchesIdentity.js').matchesIdentity
     : window.Engine.matchesIdentity;
+  const matchesBarcodeFn = (typeof module !== 'undefined')
+    ? require('./matchesBarcode.js').matchesBarcode
+    : window.Engine.matchesBarcode;
 
   if (regla.tipo === 'documento') {
     const doc = attendee[regla.fuente];
@@ -13,6 +16,9 @@ function evaluateRule(regla, attendee) {
   }
   if (regla.tipo === 'identidad') {
     return matchesIdentityFn(attendee.dni, attendee.invitacion);
+  }
+  if (regla.tipo === 'codigoBarras') {
+    return matchesBarcodeFn(attendee.dni, attendee.invitacion);
   }
   throw new Error('Unknown rule type');
 }

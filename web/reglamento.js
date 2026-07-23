@@ -7,10 +7,12 @@ window.TURNOS = [
       id: 'vigencia',
       tipo: 'documento',
       fuente: 'invitacion',
-      filtro: { type: 'exact', field: 'vigente', value: true },
+      // '__HOY__' se reemplaza en app.js por la fecha de hoy (Domains.FECHA_ACTUAL) al armar el
+      // reglamento activo -- el jugador ve ambas fechas en la tarjeta y compara el mismo.
+      filtro: { type: 'dateRange', field: 'fechaVigencia', min: '__HOY__', max: '9999-12-31' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'La invitacion debe estar vigente.',
+      descripcion: 'La fecha de vigencia de la invitacion debe ser igual o posterior a hoy.',
     },
   },
   {
@@ -116,6 +118,39 @@ window.TURNOS = [
       esperado: false,
       accionSiViola: 'rechazar',
       descripcion: 'Hoy tampoco se acepta categoria "prensa" (evento privado, sin medios).',
+    },
+  },
+  {
+    turno: 11,
+    regla: {
+      id: 'sello-valido',
+      tipo: 'documento',
+      fuente: 'invitacion',
+      filtro: { type: 'exact', field: 'selloValido', value: true },
+      esperado: true,
+      accionSiViola: 'rechazar',
+      descripcion: 'El sello de la invitacion debe ser valido (no falsificado).',
+    },
+  },
+  {
+    turno: 12,
+    regla: {
+      id: 'qr-valido',
+      tipo: 'documento',
+      fuente: 'invitacion',
+      filtro: { type: 'exact', field: 'qrValido', value: true },
+      esperado: true,
+      accionSiViola: 'rechazar',
+      descripcion: 'El codigo QR de la invitacion debe escanear correctamente.',
+    },
+  },
+  {
+    turno: 13,
+    regla: {
+      id: 'codigo-barras',
+      tipo: 'codigoBarras',
+      accionSiViola: 'rechazar',
+      descripcion: 'El codigo de barras de la invitacion debe coincidir con el numero de DNI.',
     },
   },
 ];

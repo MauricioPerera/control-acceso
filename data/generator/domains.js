@@ -70,10 +70,44 @@ function buildBirthDateDomain() {
 
 const FECHAS_NACIMIENTO = buildBirthDateDomain();
 
-// Dominios propios de este juego (control de acceso): categoria del ticket y si la invitacion
-// (no el DNI) esta vigente.
+// Fecha de "hoy" del juego: la fecha real del dispositivo, mostrada en la UI para que el jugador
+// compare contra la fecha de vigencia de cada invitacion (en vez de que el juego le diga si
+// "vigente" es true/false). No es parte de ninguna funcion con contrato CCDD -- domains.js es
+// contenido, no logica gateada.
+function computeFechaActual() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+const FECHA_ACTUAL = computeFechaActual();
+
+// Ventana de fechas de vigencia de invitaciones: +/-45 dias alrededor de hoy, para que
+// aproximadamente la mitad esten vencidas y la mitad vigentes.
+function buildVigenciaDomain(fechaActual) {
+  const dates = [];
+  const centerMs = Date.parse(fechaActual + 'T00:00:00Z');
+  const dayMs = 24 * 60 * 60 * 1000;
+  for (let offset = -45; offset <= 45; offset++) {
+    dates.push(new Date(centerMs + offset * dayMs).toISOString().slice(0, 10));
+  }
+  return dates;
+}
+
+const FECHAS_VIGENCIA = buildVigenciaDomain(FECHA_ACTUAL);
+
+// Numeros de DNI de muestra (dominio abierto, igual que nombre/apellido): el codigo de barras de
+// la invitacion deberia coincidir con uno de estos, tomado del propio DNI del asistente.
+const NUMEROS_DNI = [
+  '30111222', '31222333', '32333444', '33444555', '34555666', '35666777',
+  '36777888', '37888999', '38999000', '39000111', '40111222', '41222333',
+  '42333444', '43444555', '44555666', '45666777', '46777888', '47888999',
+];
+
+// Dominios propios de este juego (control de acceso): categoria del ticket, fecha de vigencia de
+// la invitacion, y numero de DNI (para el chequeo cruzado del codigo de barras).
 const ACCESS_DOMAINS = {
   categoriaAcceso: ['general', 'vip', 'staff', 'prensa'],
+  fechaVigencia: FECHAS_VIGENCIA,
+  numeroDni: NUMEROS_DNI,
 };
 
 const DOMAINS = {
@@ -87,9 +121,13 @@ const DOMAINS = {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS, FECHAS_NACIMIENTO,
+    IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS,
+    FECHAS_NACIMIENTO, FECHA_ACTUAL, FECHAS_VIGENCIA, NUMEROS_DNI,
   };
 }
 if (typeof window !== 'undefined') {
-  window.Domains = { IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS, FECHAS_NACIMIENTO };
+  window.Domains = {
+    IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS,
+    FECHAS_NACIMIENTO, FECHA_ACTUAL, FECHAS_VIGENCIA, NUMEROS_DNI,
+  };
 }
