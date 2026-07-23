@@ -12,7 +12,7 @@ window.TURNOS = [
       filtro: { type: 'dateRange', field: 'fechaVigencia', min: '__HOY__', max: '9999-12-31' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'La fecha de vigencia de la invitacion debe ser igual o posterior a hoy.',
+      descripcion: 'regla_vigencia',
     },
   },
   {
@@ -21,7 +21,7 @@ window.TURNOS = [
       id: 'identidad',
       tipo: 'identidad',
       accionSiViola: 'rechazar',
-      descripcion: 'El nombre y apellido de la invitacion deben coincidir con el DNI.',
+      descripcion: 'regla_identidad',
     },
   },
   {
@@ -33,7 +33,7 @@ window.TURNOS = [
       filtro: { type: 'dateRange', field: 'fechaNacimiento', min: '0000-01-01', max: '2008-12-31' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'Solo se permite el ingreso a mayores de 18 anios.',
+      descripcion: 'regla_edad_minima',
     },
   },
   {
@@ -45,7 +45,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'categoriaAcceso', value: 'general' },
       esperado: false,
       accionSiViola: 'rechazar',
-      descripcion: 'Hoy NO se acepta categoria "general" (evento solo VIP/staff/prensa).',
+      descripcion: 'regla_categoria_valida',
     },
   },
   {
@@ -57,7 +57,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'nacionalidad', value: 'chilena' },
       esperado: false,
       accionSiViola: 'detener',
-      descripcion: 'ALERTA: detener a cualquier persona de nacionalidad chilena (orden vigente).',
+      descripcion: 'regla_nacionalidad_prohibida',
     },
   },
   {
@@ -69,7 +69,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'ciudad', value: 'Buenos Aires' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'Hoy el ingreso es exclusivo para residentes de Buenos Aires.',
+      descripcion: 'regla_ciudad_requerida',
     },
   },
   {
@@ -81,7 +81,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'lentes', value: 'sunglasses' },
       esperado: false,
       accionSiViola: 'rechazar',
-      descripcion: 'No se permite el ingreso con el rostro cubierto por lentes de sol.',
+      descripcion: 'regla_sin_lentes_sol',
     },
   },
   {
@@ -93,7 +93,7 @@ window.TURNOS = [
       filtro: { type: 'dateRange', field: 'fechaNacimiento', min: '1966-01-01', max: '9999-12-31' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'El evento de hoy es solo para personas de hasta 60 anios.',
+      descripcion: 'regla_edad_maxima',
     },
   },
   {
@@ -105,7 +105,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'apellido', value: 'Rojas' },
       esperado: false,
       accionSiViola: 'detener',
-      descripcion: 'ALERTA: detener a cualquier persona de apellido Rojas (orden judicial).',
+      descripcion: 'regla_apellido_buscado',
     },
   },
   {
@@ -117,7 +117,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'categoriaAcceso', value: 'prensa' },
       esperado: false,
       accionSiViola: 'rechazar',
-      descripcion: 'Hoy tampoco se acepta categoria "prensa" (evento privado, sin medios).',
+      descripcion: 'regla_sin_prensa',
     },
   },
   {
@@ -132,7 +132,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'codigoSello', value: 'aguila-dorada' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'El sello oficial vigente hoy es "aguila-dorada". La invitacion debe llevar ese sello.',
+      descripcion: 'regla_sello_valido',
     },
   },
   {
@@ -145,7 +145,7 @@ window.TURNOS = [
       filtro: { type: 'exact', field: 'codigoQR', value: 'QR-2026-A7X' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'El codigo QR oficial vigente hoy es "QR-2026-A7X". La invitacion debe llevar ese codigo.',
+      descripcion: 'regla_qr_valido',
     },
   },
   {
@@ -154,7 +154,7 @@ window.TURNOS = [
       id: 'codigo-barras',
       tipo: 'codigoBarras',
       accionSiViola: 'rechazar',
-      descripcion: 'El codigo de barras de la invitacion debe coincidir con el numero de DNI.',
+      descripcion: 'regla_codigo_barras',
     },
   },
 ];

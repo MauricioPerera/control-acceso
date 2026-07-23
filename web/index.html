@@ -8,17 +8,22 @@
 </head>
 <body>
 <header id="app-header">
-  <h1>Control de Acceso</h1>
+  <h1 data-i18n="app_title">Control de Acceso</h1>
   <div id="score-panel">
-    <span>Hoy: <strong id="fecha-actual"></strong></span>
-    <span>Turno: <strong id="turno-value">1</strong> / <span id="turno-total">5</span></span>
+    <span><span data-i18n="label_hoy">Hoy:</span> <strong id="fecha-actual"></strong></span>
+    <span><span data-i18n="label_turno">Turno:</span> <strong id="turno-value">1</strong> / <span id="turno-total">5</span></span>
     <span>💰 $<strong id="dinero-value">0</strong> / $<strong id="requisito-value">0</strong></span>
     <span>🏦 $<strong id="ahorros-value">0</strong></span>
     <span>❌ <strong id="errores-value">0</strong> / <span id="limite-errores-value">3</span></span>
   </div>
+  <div id="idioma-switch">
+    <button type="button" data-idioma="es">ES</button>
+    <button type="button" data-idioma="en">EN</button>
+    <button type="button" data-idioma="pt">PT</button>
+  </div>
   <div id="header-buttons">
-    <button type="button" id="btn-como-jugar">Cómo jugar</button>
-    <button type="button" id="btn-reglamento">Reglamento vigente</button>
+    <button type="button" id="btn-como-jugar" data-i18n="btn_como_jugar">Cómo jugar</button>
+    <button type="button" id="btn-reglamento" data-i18n="btn_reglamento">Reglamento vigente</button>
   </div>
 </header>
 <div id="timer-bar"><div id="timer-bar-fill"></div></div>
@@ -29,30 +34,30 @@
       <div id="attendee-card">
         <div id="avatar-container"></div>
         <div class="doc-box">
-          <h3>DNI</h3>
-          <p><span class="label">Nº DNI:</span> <span id="dni-numero"></span></p>
-          <p><span class="label">Nombre:</span> <span id="dni-nombre"></span> <span id="dni-apellido"></span></p>
-          <p><span class="label">Nacimiento:</span> <span id="dni-fecha"></span></p>
-          <p><span class="label">Genero:</span> <span id="dni-genero"></span></p>
-          <p><span class="label">Nacionalidad:</span> <span id="dni-nacionalidad"></span></p>
-          <p><span class="label">Ciudad:</span> <span id="dni-ciudad"></span></p>
+          <h3 data-i18n="dni_title">DNI</h3>
+          <p><span class="label" data-i18n="label_num_dni">Nº DNI:</span> <span id="dni-numero"></span></p>
+          <p><span class="label" data-i18n="label_nombre">Nombre:</span> <span id="dni-nombre"></span> <span id="dni-apellido"></span></p>
+          <p><span class="label" data-i18n="label_nacimiento">Nacimiento:</span> <span id="dni-fecha"></span></p>
+          <p><span class="label" data-i18n="label_genero">Genero:</span> <span id="dni-genero"></span></p>
+          <p><span class="label" data-i18n="label_nacionalidad">Nacionalidad:</span> <span id="dni-nacionalidad"></span></p>
+          <p><span class="label" data-i18n="label_ciudad">Ciudad:</span> <span id="dni-ciudad"></span></p>
         </div>
         <div class="doc-box">
-          <h3>Invitacion</h3>
-          <p><span class="label">Nombre:</span> <span id="inv-nombre"></span> <span id="inv-apellido"></span></p>
-          <p><span class="label">Categoria:</span> <span id="inv-categoria"></span></p>
-          <p><span class="label">Vigencia:</span> <span id="inv-fecha-vigencia"></span></p>
-          <p><span class="label">Cod. barras:</span> <span id="inv-codigo-barras"></span></p>
-          <p><span class="label">Sello:</span> <span id="inv-sello"></span></p>
-          <p><span class="label">QR:</span> <span id="inv-qr"></span></p>
+          <h3 data-i18n="invitacion_title">Invitacion</h3>
+          <p><span class="label" data-i18n="label_nombre">Nombre:</span> <span id="inv-nombre"></span> <span id="inv-apellido"></span></p>
+          <p><span class="label" data-i18n="label_categoria">Categoria:</span> <span id="inv-categoria"></span></p>
+          <p><span class="label" data-i18n="label_vigencia">Vigencia:</span> <span id="inv-fecha-vigencia"></span></p>
+          <p><span class="label" data-i18n="label_cod_barras">Cod. barras:</span> <span id="inv-codigo-barras"></span></p>
+          <p><span class="label" data-i18n="label_sello">Sello:</span> <span id="inv-sello"></span></p>
+          <p><span class="label" data-i18n="label_qr">QR:</span> <span id="inv-qr"></span></p>
         </div>
         <div id="swipe-stamp" class="hidden"></div>
       </div>
     </div>
     <div id="action-buttons">
-      <button type="button" id="btn-rechazar">✕ Rechazar</button>
-      <button type="button" id="btn-detener">⚑ Detener</button>
-      <button type="button" id="btn-aprobar">✓ Aprobar</button>
+      <button type="button" id="btn-rechazar" data-i18n="btn_rechazar">✕ Rechazar</button>
+      <button type="button" id="btn-detener" data-i18n="btn_detener">⚑ Detener</button>
+      <button type="button" id="btn-aprobar" data-i18n="btn_aprobar">✓ Aprobar</button>
     </div>
   </section>
 </main>
@@ -61,7 +66,7 @@
   <div class="modal-box">
     <h2 id="feedback-title"></h2>
     <p id="feedback-body"></p>
-    <button id="feedback-close" type="button">Siguiente</button>
+    <button id="feedback-close" type="button" data-i18n="btn_siguiente">Siguiente</button>
   </div>
 </div>
 
@@ -75,54 +80,54 @@
 
 <div id="como-jugar-modal" class="hidden">
   <div class="modal-box">
-    <h2>Cómo jugar</h2>
-    <p>Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener" para casos que
+    <h2 data-i18n="como_jugar_titulo">Cómo jugar</h2>
+    <p data-i18n="como_jugar_p1">Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener" para casos que
     el reglamento pida detener.</p>
-    <p>Cada decision correcta paga $5. Al final de cada turno necesitas juntar el minimo indicado
+    <p data-i18n="como_jugar_p2">Cada decision correcta paga $5. Al final de cada turno necesitas juntar el minimo indicado
     o quedas despedido. Un limite de errores tambien termina la partida. El tiempo del turno es
     total (no por persona): si se acaba, el turno corta ahi con lo que llegaste a procesar.</p>
-    <p>Lo que ganas de mas sobre el requisito se guarda como ahorro. Entre turno y turno hay una
+    <p data-i18n="como_jugar_p3">Lo que ganas de mas sobre el requisito se guarda como ahorro. Entre turno y turno hay una
     tienda para gastarlo: mejoras permanentes para el resto de la partida, y objetos para el
     proximo turno unicamente (mas tiempo, un comodin de indulgencia, o bajar el requisito).</p>
-    <button id="como-jugar-close" type="button">Cerrar</button>
+    <button id="como-jugar-close" type="button" data-i18n="btn_cerrar">Cerrar</button>
   </div>
 </div>
 
 <div id="reglamento-modal" class="hidden">
   <div class="modal-box">
-    <h2>Reglamento vigente</h2>
+    <h2 data-i18n="reglamento_titulo">Reglamento vigente</h2>
     <ul id="reglamento-list"></ul>
-    <button id="reglamento-close" type="button">Cerrar</button>
+    <button id="reglamento-close" type="button" data-i18n="btn_cerrar">Cerrar</button>
   </div>
 </div>
 
 <div id="dia-modal" class="hidden">
   <div class="modal-box">
-    <h2>Turno <span id="dia-turno-num"></span></h2>
-    <p>Requisito minimo del turno: $<strong id="dia-requisito"></strong></p>
+    <h2><span data-i18n="dia_titulo">Turno</span> <span id="dia-turno-num"></span></h2>
+    <p><span data-i18n="dia_requisito_label">Requisito minimo del turno:</span> $<strong id="dia-requisito"></strong></p>
     <ul id="dia-reglas-list"></ul>
-    <button id="dia-iniciar" type="button">Iniciar jornada</button>
+    <button id="dia-iniciar" type="button" data-i18n="btn_iniciar_jornada">Iniciar jornada</button>
   </div>
 </div>
 
 <div id="tienda-modal" class="hidden">
   <div class="modal-box">
-    <h2>Tienda</h2>
-    <p>Ahorros disponibles: $<strong id="tienda-ahorros">0</strong></p>
-    <h3>Mejoras permanentes</h3>
+    <h2 data-i18n="tienda_titulo">Tienda</h2>
+    <p><span data-i18n="tienda_ahorros_label">Ahorros disponibles:</span> $<strong id="tienda-ahorros">0</strong></p>
+    <h3 data-i18n="tienda_permanentes_titulo">Mejoras permanentes</h3>
     <ul id="tienda-permanentes-list"></ul>
-    <h3>Para este turno</h3>
+    <h3 data-i18n="tienda_consumibles_titulo">Para este turno</h3>
     <ul id="tienda-consumibles-list"></ul>
-    <button id="tienda-continuar" type="button">Continuar</button>
+    <button id="tienda-continuar" type="button" data-i18n="btn_continuar">Continuar</button>
   </div>
 </div>
 
 <div id="evento-modal" class="hidden">
   <div class="modal-box">
-    <h2>Entre turnos</h2>
+    <h2 data-i18n="evento_titulo">Entre turnos</h2>
     <p id="evento-texto"></p>
     <p id="evento-resultado"></p>
-    <button id="evento-continuar" type="button">Continuar</button>
+    <button id="evento-continuar" type="button" data-i18n="btn_continuar">Continuar</button>
   </div>
 </div>
 
@@ -140,6 +145,7 @@
 <script src="engine/evaluateRule.js"></script>
 <script src="engine/determineCorrectAction.js"></script>
 <script src="engine/interpretSwipe.js"></script>
+<script src="i18n.js"></script>
 <script src="reglamento.js"></script>
 <script src="app.js"></script>
 </body>

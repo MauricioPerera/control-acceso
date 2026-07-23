@@ -11,33 +11,21 @@
   const TIEMPO_POR_TURNO = 60;
 
   const UPGRADES = [
-    { id: 'mas-tiempo', nombre: 'Reloj mas grande', costo: 15, descripcion: '+15 segundos por turno de aqui en adelante.', aplicar: (s) => { s.timeBonus += 15; } },
-    { id: 'mano-dura', nombre: 'Mano dura', costo: 20, descripcion: 'Tolera 1 error mas antes de quedar despedido.', aplicar: (s) => { s.erroresBonus += 1; } },
-    { id: 'contactos', nombre: 'Contactos en la administracion', costo: 15, descripcion: 'El requisito minimo baja $5 de aqui en adelante.', aplicar: (s) => { s.requisitoDescuento += 5; } },
+    { id: 'mas-tiempo', nombre: 'upgrade_mas_tiempo_nombre', costo: 15, descripcion: 'upgrade_mas_tiempo_desc', aplicar: (s) => { s.timeBonus += 15; } },
+    { id: 'mano-dura', nombre: 'upgrade_mano_dura_nombre', costo: 20, descripcion: 'upgrade_mano_dura_desc', aplicar: (s) => { s.erroresBonus += 1; } },
+    { id: 'contactos', nombre: 'upgrade_contactos_nombre', costo: 15, descripcion: 'upgrade_contactos_desc', aplicar: (s) => { s.requisitoDescuento += 5; } },
   ];
 
   const CONSUMIBLES = [
-    { id: 'cafe', nombre: 'Cafe cargado', costo: 8, descripcion: '+10 segundos, solo para el proximo turno.', aplicar: (s) => { s.tiempoExtraTemporal += 10; } },
-    { id: 'comodin', nombre: 'Comodin de indulgencia', costo: 12, descripcion: 'El proximo error de este turno no cuenta.', aplicar: (s) => { s.indulgencias += 1; } },
-    { id: 'contacto-rapido', nombre: 'Contacto rapido', costo: 10, descripcion: 'El requisito de este turno baja $5.', aplicar: (s) => { s.requisitoDescuentoTemporal += 5; } },
+    { id: 'cafe', nombre: 'consumible_cafe_nombre', costo: 8, descripcion: 'consumible_cafe_desc', aplicar: (s) => { s.tiempoExtraTemporal += 10; } },
+    { id: 'comodin', nombre: 'consumible_comodin_nombre', costo: 12, descripcion: 'consumible_comodin_desc', aplicar: (s) => { s.indulgencias += 1; } },
+    { id: 'contacto-rapido', nombre: 'consumible_contacto_rapido_nombre', costo: 10, descripcion: 'consumible_contacto_rapido_desc', aplicar: (s) => { s.requisitoDescuentoTemporal += 5; } },
   ];
 
   const EVENTOS = [
-    {
-      texto: 'Un supervisor sorpresa audita tu puesto y te felicita por tu prolijidad.',
-      resultado: 'Ganaste $10 de bono.',
-      efecto: (s) => { s.ahorros += 10; },
-    },
-    {
-      texto: 'Un asistente intenta sobornarte para que ignores el reglamento. Lo rechazas, pero perdes tiempo con el papeleo de la denuncia.',
-      resultado: 'Perdiste $5 en gastos administrativos.',
-      efecto: (s) => { s.ahorros = Math.max(0, s.ahorros - 5); },
-    },
-    {
-      texto: 'Corre el rumor de que van a subir el requisito diario. Guardas unos pesos extra por las dudas.',
-      resultado: 'No paso nada, pero quedas alerta.',
-      efecto: () => {},
-    },
+    { texto: 'evento1_texto', resultado: 'evento1_resultado', efecto: (s) => { s.ahorros += 10; } },
+    { texto: 'evento2_texto', resultado: 'evento2_resultado', efecto: (s) => { s.ahorros = Math.max(0, s.ahorros - 5); } },
+    { texto: 'evento3_texto', resultado: 'evento3_resultado', efecto: () => {} },
   ];
 
   function requisitoParaTurno(turnoIndex) {
@@ -107,7 +95,7 @@
     list.innerHTML = '';
     for (const regla of state.reglasActivas) {
       const li = document.createElement('li');
-      li.textContent = regla.descripcion;
+      li.textContent = I18N.t(regla.descripcion);
       list.appendChild(li);
     }
   }
@@ -219,18 +207,25 @@
     if (!state.gameOver && !state.timerHandle) startTimerInterval();
   }
 
+  function accionTexto(accion) {
+    return I18N.t(`accion_${accion}`);
+  }
+
   function showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado) {
-    document.getElementById('feedback-title').textContent = wasCorrect ? 'Correcto' : 'Incorrecto';
+    document.getElementById('feedback-title').textContent =
+      I18N.t(wasCorrect ? 'feedback_correcto_titulo' : 'feedback_incorrecto_titulo');
     let body;
     if (wasCorrect) {
-      body = `Hiciste bien en ${chosenAction}.`;
+      body = I18N.t('feedback_bien', { accion: accionTexto(chosenAction) });
     } else if (violadas.length > 0) {
-      const motivos = violadas.map((r) => r.descripcion).join(' ');
-      body = `Elegiste ${chosenAction}, pero lo correcto era ${correctAction}. Lo que estaba mal: ${motivos}`;
+      const motivos = violadas.map((r) => I18N.t(r.descripcion)).join(' ');
+      body = I18N.t('feedback_mal_con_motivo', {
+        elegido: accionTexto(chosenAction), correcto: accionTexto(correctAction), motivos,
+      });
     } else {
-      body = `Elegiste ${chosenAction}, pero lo correcto era ${correctAction}: no habia ningun problema con esta invitacion.`;
+      body = I18N.t('feedback_mal_sin_motivo', { elegido: accionTexto(chosenAction), correcto: accionTexto(correctAction) });
     }
-    if (indultado) body += ' Tu comodin de indulgencia lo cubrio: no cuenta como error.';
+    if (indultado) body += I18N.t('feedback_indultado');
     document.getElementById('feedback-body').textContent = body;
     document.getElementById('feedback-modal').classList.remove('hidden');
   }
@@ -287,11 +282,15 @@
       endGame('victoria');
       return;
     }
-    document.getElementById('end-title').textContent = 'Fin del turno';
-    document.getElementById('end-close').textContent = 'Continuar';
-    document.getElementById('end-body').textContent =
-      `Turno ${state.turnoIndex + 1} completo. Ganaste $${state.dinero} (requisito $${requisito}). ` +
-      `Ahorros: $${state.ahorros}. Nueva regla: ${nextTurnoData.regla.descripcion}`;
+    document.getElementById('end-title').textContent = I18N.t('turno_completo_titulo');
+    document.getElementById('end-close').textContent = I18N.t('btn_continuar');
+    document.getElementById('end-body').textContent = I18N.t('turno_completo_cuerpo', {
+      turno: state.turnoIndex + 1,
+      ganado: state.dinero,
+      requisito,
+      ahorros: state.ahorros,
+      regla: I18N.t(nextTurnoData.regla.descripcion),
+    });
     document.getElementById('end-modal').classList.remove('hidden');
   }
 
@@ -299,12 +298,12 @@
     state.gameOver = true;
     stopTimer();
     const mensajes = {
-      errores: `Alcanzaste el limite de ${LIMITE_ERRORES + state.erroresBonus} errores. Quedas despedido.`,
-      dinero: `No llegaste al minimo del turno ($${extra}, ganaste $${state.dinero}). No podes pagar tus cuentas.`,
-      victoria: `Cumpliste todos los turnos. Correctas: ${state.correct}. Incorrectas: ${state.incorrect}.`,
+      errores: I18N.t('fin_errores', { limite: LIMITE_ERRORES + state.erroresBonus }),
+      dinero: I18N.t('fin_dinero', { requisito: extra, ganado: state.dinero }),
+      victoria: I18N.t('fin_victoria', { correctas: state.correct, incorrectas: state.incorrect }),
     };
-    document.getElementById('end-title').textContent = reason === 'victoria' ? 'Victoria' : 'Fin de la partida';
-    document.getElementById('end-close').textContent = 'Reiniciar partida';
+    document.getElementById('end-title').textContent = I18N.t(reason === 'victoria' ? 'victoria_titulo' : 'fin_partida_titulo');
+    document.getElementById('end-close').textContent = I18N.t('btn_reiniciar');
     document.getElementById('end-body').textContent = mensajes[reason];
     document.getElementById('end-modal').classList.remove('hidden');
   }
@@ -340,16 +339,16 @@
     list.innerHTML = '';
     if (esPermanente && items.length === 0) {
       const li = document.createElement('li');
-      li.textContent = 'Ya compraste todas las mejoras disponibles.';
+      li.textContent = I18N.t('ya_compraste_todo');
       list.appendChild(li);
       return;
     }
     for (const item of items) {
       const li = document.createElement('li');
-      li.textContent = `${item.nombre}: ${item.descripcion} `;
+      li.textContent = `${I18N.t(item.nombre)}: ${I18N.t(item.descripcion)} `;
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.textContent = `Comprar $${item.costo}`;
+      btn.textContent = `${I18N.t('comprar')} $${item.costo}`;
       btn.disabled = state.ahorros < item.costo;
       btn.addEventListener('click', () => comprarItem(item, esPermanente));
       li.appendChild(btn);
@@ -377,8 +376,9 @@
   function showEvento() {
     const evento = EVENTOS[Math.floor(state.rng() * EVENTOS.length)];
     evento.efecto(state);
-    document.getElementById('evento-texto').textContent = evento.texto;
-    document.getElementById('evento-resultado').textContent = `${evento.resultado} Ahorros: $${state.ahorros}.`;
+    document.getElementById('evento-texto').textContent = I18N.t(evento.texto);
+    document.getElementById('evento-resultado').textContent =
+      I18N.t(evento.resultado) + I18N.t('evento_ahorros_suffix', { ahorros: state.ahorros });
     updateScoreDisplay();
     document.getElementById('evento-modal').classList.remove('hidden');
   }
@@ -457,6 +457,15 @@
       document.getElementById('evento-modal').classList.add('hidden');
       showTienda();
     });
+    document.querySelectorAll('#idioma-switch button').forEach((btn) => {
+      btn.addEventListener('click', () => I18N.setIdioma(btn.getAttribute('data-idioma')));
+    });
+  }
+
+  function refrescarTextosDinamicos() {
+    renderReglamento();
+    if (!document.getElementById('dia-modal').classList.contains('hidden')) showDiaModal();
+    if (!document.getElementById('tienda-modal').classList.contains('hidden')) showTienda();
   }
 
   async function init() {
@@ -470,6 +479,8 @@
     state.avataaars = avataaars;
 
     document.getElementById('turno-total').textContent = String(window.TURNOS.length);
+    I18N.onChange = refrescarTextosDinamicos;
+    I18N.aplicarTraducciones();
     renderReglamento();
     updateScoreDisplay();
     wireDrag();
