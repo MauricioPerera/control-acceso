@@ -11,9 +11,15 @@
   const TIEMPO_POR_TURNO = 60;
 
   const UPGRADES = [
-    { id: 'mas-tiempo', nombre: 'Reloj mas grande', costo: 15, descripcion: '+15 segundos por turno de aqui en adelante.' },
-    { id: 'mano-dura', nombre: 'Mano dura', costo: 20, descripcion: 'Tolera 1 error mas antes de quedar despedido.' },
-    { id: 'contactos', nombre: 'Contactos en la administracion', costo: 15, descripcion: 'El requisito minimo baja $5 de aqui en adelante.' },
+    { id: 'mas-tiempo', nombre: 'Reloj mas grande', costo: 15, descripcion: '+15 segundos por turno de aqui en adelante.', aplicar: (s) => { s.timeBonus += 15; } },
+    { id: 'mano-dura', nombre: 'Mano dura', costo: 20, descripcion: 'Tolera 1 error mas antes de quedar despedido.', aplicar: (s) => { s.erroresBonus += 1; } },
+    { id: 'contactos', nombre: 'Contactos en la administracion', costo: 15, descripcion: 'El requisito minimo baja $5 de aqui en adelante.', aplicar: (s) => { s.requisitoDescuento += 5; } },
+  ];
+
+  const CONSUMIBLES = [
+    { id: 'cafe', nombre: 'Cafe cargado', costo: 8, descripcion: '+10 segundos, solo para el proximo turno.', aplicar: (s) => { s.tiempoExtraTemporal += 10; } },
+    { id: 'comodin', nombre: 'Comodin de indulgencia', costo: 12, descripcion: 'El proximo error de este turno no cuenta.', aplicar: (s) => { s.indulgencias += 1; } },
+    { id: 'contacto-rapido', nombre: 'Contacto rapido', costo: 10, descripcion: 'El requisito de este turno baja $5.', aplicar: (s) => { s.requisitoDescuentoTemporal += 5; } },
   ];
 
   const EVENTOS = [
@@ -35,7 +41,7 @@
   ];
 
   function requisitoParaTurno(turnoIndex) {
-    return Math.max(0, 10 + turnoIndex * 2 - state.requisitoDescuento);
+    return Math.max(0, 10 + turnoIndex * 2 - state.requisitoDescuento - state.requisitoDescuentoTemporal);
   }
 
   const state = {
@@ -53,7 +59,11 @@
     timeBonus: 0,
     erroresBonus: 0,
     requisitoDescuento: 0,
+    tiempoExtraTemporal: 0,
+    requisitoDescuentoTemporal: 0,
+    indulgencias: 0,
     tiempoRestante: TIEMPO_POR_TURNO,
+    turnoTiempoTotal: TIEMPO_POR_TURNO,
     timerHandle: null,
     celebrados: new Set(),
     current: null,
@@ -152,8 +162,7 @@
 
   function updateTimerDisplay() {
     const segundos = Math.max(state.tiempoRestante, 0);
-    const total = TIEMPO_POR_TURNO + state.timeBonus;
-    const pct = Math.max(0, Math.min(100, (segundos / total) * 100));
+    const pct = Math.max(0, Math.min(100, (segundos / state.turnoTiempoTotal) * 100));
     const fill = document.getElementById('timer-bar-fill');
     fill.style.width = `${pct}%`;
     fill.style.background = pct > 50 ? '#3b6' : pct > 20 ? '#e93' : '#e33';
@@ -192,7 +201,9 @@
   }
 
   function startTimer() {
-    state.tiempoRestante = TIEMPO_POR_TURNO + state.timeBonus;
+    state.turnoTiempoTotal = TIEMPO_POR_TURNO + state.timeBonus + state.tiempoExtraTemporal;
+    state.tiempoExtraTemporal = 0;
+    state.tiempoRestante = state.turnoTiempoTotal;
     updateTimerDisplay();
     startTimerInterval();
   }
@@ -208,7 +219,7 @@
     if (!state.gameOver && !state.timerHandle) startTimerInterval();
   }
 
-  function showFeedback(wasCorrect, correctAction, chosenAction, violadas) {
+  function showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado) {
     document.getElementById('feedback-title').textContent = wasCorrect ? 'Correcto' : 'Incorrecto';
     let body;
     if (wasCorrect) {
@@ -219,6 +230,7 @@
     } else {
       body = `Elegiste ${chosenAction}, pero lo correcto era ${correctAction}: no habia ningun problema con esta invitacion.`;
     }
+    if (indultado) body += ' Tu comodin de indulgencia lo cubrio: no cuenta como error.';
     document.getElementById('feedback-body').textContent = body;
     document.getElementById('feedback-modal').classList.remove('hidden');
   }
@@ -228,6 +240,7 @@
     const violadas = violatedReglas(state.reglasActivas, state.current);
     const correctAction = Engine.determineCorrectAction(state.reglasActivas, state.current);
     const wasCorrect = chosenAction === correctAction;
+    let indultado = false;
     if (wasCorrect) {
       state.correct += 1;
       state.dinero += PAGO_POR_CORRECTA;
@@ -238,10 +251,15 @@
       }
     } else {
       state.incorrect += 1;
-      state.errores += 1;
+      if (state.indulgencias > 0) {
+        state.indulgencias -= 1;
+        indultado = true;
+      } else {
+        state.errores += 1;
+      }
     }
     updateScoreDisplay();
-    showFeedback(wasCorrect, correctAction, chosenAction, violadas);
+    showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado);
   }
 
   function advance() {
@@ -257,6 +275,8 @@
   function endTurno() {
     stopTimer();
     const requisito = requisitoParaTurno(state.turnoIndex);
+    state.requisitoDescuentoTemporal = 0;
+    state.indulgencias = 0;
     if (state.dinero < requisito) {
       endGame('dinero', requisito);
       return;
@@ -308,44 +328,48 @@
   }
 
   function showEntreDias() {
-    if (state.rng() < 0.5) {
-      showTienda();
-    } else {
+    if (state.rng() < 0.4) {
       showEvento();
+    } else {
+      showTienda();
+    }
+  }
+
+  function renderTiendaSeccion(ulId, items, esPermanente) {
+    const list = document.getElementById(ulId);
+    list.innerHTML = '';
+    if (esPermanente && items.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Ya compraste todas las mejoras disponibles.';
+      list.appendChild(li);
+      return;
+    }
+    for (const item of items) {
+      const li = document.createElement('li');
+      li.textContent = `${item.nombre}: ${item.descripcion} `;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = `Comprar $${item.costo}`;
+      btn.disabled = state.ahorros < item.costo;
+      btn.addEventListener('click', () => comprarItem(item, esPermanente));
+      li.appendChild(btn);
+      list.appendChild(li);
     }
   }
 
   function showTienda() {
-    const list = document.getElementById('tienda-list');
-    list.innerHTML = '';
-    const disponibles = UPGRADES.filter((u) => !state.comprados.has(u.id));
-    if (disponibles.length === 0) {
-      const li = document.createElement('li');
-      li.textContent = 'Ya compraste todas las mejoras disponibles.';
-      list.appendChild(li);
-    }
-    for (const upgrade of disponibles) {
-      const li = document.createElement('li');
-      li.textContent = `${upgrade.nombre}: ${upgrade.descripcion} `;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = `Comprar $${upgrade.costo}`;
-      btn.disabled = state.ahorros < upgrade.costo;
-      btn.addEventListener('click', () => comprarUpgrade(upgrade));
-      li.appendChild(btn);
-      list.appendChild(li);
-    }
+    renderTiendaSeccion('tienda-permanentes-list', UPGRADES.filter((u) => !state.comprados.has(u.id)), true);
+    renderTiendaSeccion('tienda-consumibles-list', CONSUMIBLES, false);
     document.getElementById('tienda-ahorros').textContent = String(state.ahorros);
     document.getElementById('tienda-modal').classList.remove('hidden');
   }
 
-  function comprarUpgrade(upgrade) {
-    if (state.ahorros < upgrade.costo || state.comprados.has(upgrade.id)) return;
-    state.ahorros -= upgrade.costo;
-    state.comprados.add(upgrade.id);
-    if (upgrade.id === 'mas-tiempo') state.timeBonus += 15;
-    if (upgrade.id === 'mano-dura') state.erroresBonus += 1;
-    if (upgrade.id === 'contactos') state.requisitoDescuento += 5;
+  function comprarItem(item, esPermanente) {
+    if (state.ahorros < item.costo) return;
+    if (esPermanente && state.comprados.has(item.id)) return;
+    state.ahorros -= item.costo;
+    if (esPermanente) state.comprados.add(item.id);
+    item.aplicar(state);
     updateScoreDisplay();
     showTienda();
   }
@@ -431,7 +455,7 @@
     });
     document.getElementById('evento-continuar').addEventListener('click', () => {
       document.getElementById('evento-modal').classList.add('hidden');
-      showDiaModal();
+      showTienda();
     });
   }
 
