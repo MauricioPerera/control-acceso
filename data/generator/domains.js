@@ -111,6 +111,13 @@ const CODIGOS_QR = ['QR-2026-A7X', 'QR-2026-B3M', 'QR-2026-C9K', 'QR-2026-D2P', 
 const REFERENCIA_SELLO = SELLOS[0];
 const REFERENCIA_QR = CODIGOS_QR[0];
 
+// Invitacion reportada como robada: un numero de DNI fijo de NUMEROS_DNI (mismo dominio que el
+// codigo de barras de cualquier invitacion) mas un nombre/apellido fijo de las listas de arriba,
+// puramente narrativos -- la persona a la que se la robaron. El chequeo real de la regla compara
+// solo el codigo de barras (dato que el jugador ya ve en la tarjeta) contra este numero.
+const REPORTE_ROBO_NUMERO = NUMEROS_DNI[7];
+const REPORTE_ROBO_NOMBRE = `${NOMBRES[2]} ${APELLIDOS[16]}`;
+
 // Dominios propios de este juego (control de acceso): categoria del ticket, fecha de vigencia de
 // la invitacion, numero de DNI (para el chequeo cruzado del codigo de barras), y sello/QR.
 const ACCESS_DOMAINS = {
@@ -135,6 +142,7 @@ if (typeof module !== 'undefined') {
     IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS,
     FECHAS_NACIMIENTO, FECHA_ACTUAL, FECHAS_VIGENCIA, NUMEROS_DNI,
     SELLOS, CODIGOS_QR, REFERENCIA_SELLO, REFERENCIA_QR,
+    REPORTE_ROBO_NUMERO, REPORTE_ROBO_NOMBRE,
   };
 }
 if (typeof window !== 'undefined') {
@@ -142,5 +150,6 @@ if (typeof window !== 'undefined') {
     IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS,
     FECHAS_NACIMIENTO, FECHA_ACTUAL, FECHAS_VIGENCIA, NUMEROS_DNI,
     SELLOS, CODIGOS_QR, REFERENCIA_SELLO, REFERENCIA_QR,
+    REPORTE_ROBO_NUMERO, REPORTE_ROBO_NOMBRE,
   };
 }

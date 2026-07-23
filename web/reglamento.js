@@ -157,6 +157,21 @@ window.TURNOS = [
       descripcion: 'regla_codigo_barras',
     },
   },
+  {
+    turno: 14,
+    regla: {
+      id: 'invitacion-robada',
+      tipo: 'documento',
+      fuente: 'invitacion',
+      // El numero coincide con Domains.REPORTE_ROBO_NUMERO ("37888999", de Valentina Suarez):
+      // el jugador debe comparar el codigo de barras impreso contra el numero reportado, no
+      // confiar en que el juego se lo diga.
+      filtro: { type: 'exact', field: 'codigoBarras', value: '37888999' },
+      esperado: false,
+      accionSiViola: 'detener',
+      descripcion: 'regla_invitacion_robada',
+    },
+  },
 ];
 
 window.ATENDEES_POR_TURNO = 8;

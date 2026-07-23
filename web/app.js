@@ -7,6 +7,7 @@
   const MATCH_PROBABILITY = 0.7;
   const REFERENCIAS_SEGURIDAD = { sello: Domains.REFERENCIA_SELLO, qr: Domains.REFERENCIA_QR };
   const PAGO_POR_CORRECTA = 5;
+  const BONUS_DETENCION = 10;
   const LIMITE_ERRORES = 3;
   const TIEMPO_POR_TURNO = 60;
 
@@ -211,12 +212,13 @@
     return I18N.t(`accion_${accion}`);
   }
 
-  function showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado) {
+  function showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado, bonoDetencion) {
     document.getElementById('feedback-title').textContent =
       I18N.t(wasCorrect ? 'feedback_correcto_titulo' : 'feedback_incorrecto_titulo');
     let body;
     if (wasCorrect) {
       body = I18N.t('feedback_bien', { accion: accionTexto(chosenAction) });
+      if (bonoDetencion > 0) body += I18N.t('feedback_bonus_detencion', { bonus: bonoDetencion });
     } else if (violadas.length > 0) {
       const motivos = violadas.map((r) => I18N.t(r.descripcion)).join(' ');
       body = I18N.t('feedback_mal_con_motivo', {
@@ -236,9 +238,14 @@
     const correctAction = Engine.determineCorrectAction(state.reglasActivas, state.current);
     const wasCorrect = chosenAction === correctAction;
     let indultado = false;
+    let bonoDetencion = 0;
     if (wasCorrect) {
       state.correct += 1;
       state.dinero += PAGO_POR_CORRECTA;
+      if (chosenAction === 'detener') {
+        bonoDetencion = BONUS_DETENCION;
+        state.dinero += bonoDetencion;
+      }
       const nuevas = violadas.filter((r) => !state.celebrados.has(r.id));
       if (nuevas.length > 0) {
         nuevas.forEach((r) => state.celebrados.add(r.id));
@@ -254,7 +261,7 @@
       }
     }
     updateScoreDisplay();
-    showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado);
+    showFeedback(wasCorrect, correctAction, chosenAction, violadas, indultado, bonoDetencion);
   }
 
   function advance() {
