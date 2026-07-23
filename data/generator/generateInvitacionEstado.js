@@ -1,9 +1,7 @@
-function generateInvitacionEstado(config, domains, rng) {
+function generateInvitacionEstado(domains, rng) {
   const categoriaAcceso = domains.categoriaAcceso[Math.floor(rng() * domains.categoriaAcceso.length)];
   const fechaVigencia = domains.fechaVigencia[Math.floor(rng() * domains.fechaVigencia.length)];
-  const selloValido = rng() < config.selloProbability;
-  const qrValido = rng() < config.qrProbability;
-  return { categoriaAcceso, fechaVigencia, selloValido, qrValido };
+  return { categoriaAcceso, fechaVigencia };
 }
 
 if (typeof module !== 'undefined') {

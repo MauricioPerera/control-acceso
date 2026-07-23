@@ -126,10 +126,13 @@ window.TURNOS = [
       id: 'sello-valido',
       tipo: 'documento',
       fuente: 'invitacion',
-      filtro: { type: 'exact', field: 'selloValido', value: true },
+      // El valor exacto debe coincidir con Domains.REFERENCIA_SELLO (mismo dato, no duplicar
+      // logica): hoy el sello oficial es "aguila-dorada". El jugador debe comparar este valor
+      // contra el sello impreso en la invitacion, no confiar en que el juego se lo diga.
+      filtro: { type: 'exact', field: 'codigoSello', value: 'aguila-dorada' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'El sello de la invitacion debe ser valido (no falsificado).',
+      descripcion: 'El sello oficial vigente hoy es "aguila-dorada". La invitacion debe llevar ese sello.',
     },
   },
   {
@@ -138,10 +141,11 @@ window.TURNOS = [
       id: 'qr-valido',
       tipo: 'documento',
       fuente: 'invitacion',
-      filtro: { type: 'exact', field: 'qrValido', value: true },
+      // Idem: debe coincidir con Domains.REFERENCIA_QR ("QR-2026-A7X").
+      filtro: { type: 'exact', field: 'codigoQR', value: 'QR-2026-A7X' },
       esperado: true,
       accionSiViola: 'rechazar',
-      descripcion: 'El codigo QR de la invitacion debe escanear correctamente.',
+      descripcion: 'El codigo QR oficial vigente hoy es "QR-2026-A7X". La invitacion debe llevar ese codigo.',
     },
   },
   {

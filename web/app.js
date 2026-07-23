@@ -5,7 +5,7 @@
     'lentes', 'velloFacial', 'tonoPiel', 'colorPelo', 'peinado', 'numeroDni',
   ];
   const MATCH_PROBABILITY = 0.7;
-  const ESTADO_CONFIG = { selloProbability: 0.85, qrProbability: 0.85 };
+  const REFERENCIAS_SEGURIDAD = { sello: Domains.REFERENCIA_SELLO, qr: Domains.REFERENCIA_QR };
 
   const state = {
     rng: null,
@@ -31,8 +31,9 @@
     const dni = Engine.mutateProfile(templateBase, 1, Domains.DOMAINS, state.rng);
     dni.id = `char-${state.idCounter++}`;
     const identidad = Engine.generateInvitacionIdentidad(dni, MATCH_PROBABILITY, Domains.DOMAINS, state.rng);
-    const estado = Engine.generateInvitacionEstado(ESTADO_CONFIG, Domains.DOMAINS, state.rng);
-    const invitacion = { ...identidad, ...estado };
+    const estado = Engine.generateInvitacionEstado(Domains.DOMAINS, state.rng);
+    const seguridad = Engine.generateInvitacionSeguridad(REFERENCIAS_SEGURIDAD, MATCH_PROBABILITY, Domains.DOMAINS, state.rng);
+    const invitacion = { ...identidad, ...estado, ...seguridad };
     const avatarParams = Engine.assignAvatarParams(dni);
     return { dni, invitacion, avatarParams };
   }
@@ -75,8 +76,8 @@
     document.getElementById('inv-categoria').textContent = a.invitacion.categoriaAcceso;
     document.getElementById('inv-fecha-vigencia').textContent = a.invitacion.fechaVigencia;
     document.getElementById('inv-codigo-barras').textContent = a.invitacion.codigoBarras;
-    document.getElementById('inv-sello').textContent = a.invitacion.selloValido ? 'valido' : 'invalido';
-    document.getElementById('inv-qr').textContent = a.invitacion.qrValido ? 'valido' : 'invalido';
+    document.getElementById('inv-sello').textContent = a.invitacion.codigoSello;
+    document.getElementById('inv-qr').textContent = a.invitacion.codigoQR;
     card.style.transform = '';
     stamp.className = 'hidden';
   }

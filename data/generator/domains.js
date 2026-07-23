@@ -102,12 +102,23 @@ const NUMEROS_DNI = [
   '42333444', '43444555', '44555666', '45666777', '46777888', '47888999',
 ];
 
+// Sellos y codigos QR posibles. El PRIMER valor de cada lista es el "oficial vigente" para toda
+// la partida (REFERENCIA_SELLO/REFERENCIA_QR) -- se muestra en el texto de la regla para que el
+// jugador lo compare contra el sello/QR real de cada invitacion, en vez de que el juego le diga
+// "valido"/"invalido" directamente.
+const SELLOS = ['aguila-dorada', 'leon-plateado', 'estrella-real', 'sol-naciente', 'corona-imperial'];
+const CODIGOS_QR = ['QR-2026-A7X', 'QR-2026-B3M', 'QR-2026-C9K', 'QR-2026-D2P', 'QR-2026-E5Q'];
+const REFERENCIA_SELLO = SELLOS[0];
+const REFERENCIA_QR = CODIGOS_QR[0];
+
 // Dominios propios de este juego (control de acceso): categoria del ticket, fecha de vigencia de
-// la invitacion, y numero de DNI (para el chequeo cruzado del codigo de barras).
+// la invitacion, numero de DNI (para el chequeo cruzado del codigo de barras), y sello/QR.
 const ACCESS_DOMAINS = {
   categoriaAcceso: ['general', 'vip', 'staff', 'prensa'],
   fechaVigencia: FECHAS_VIGENCIA,
   numeroDni: NUMEROS_DNI,
+  codigoSello: SELLOS,
+  codigoQR: CODIGOS_QR,
 };
 
 const DOMAINS = {
@@ -123,11 +134,13 @@ if (typeof module !== 'undefined') {
   module.exports = {
     IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS,
     FECHAS_NACIMIENTO, FECHA_ACTUAL, FECHAS_VIGENCIA, NUMEROS_DNI,
+    SELLOS, CODIGOS_QR, REFERENCIA_SELLO, REFERENCIA_QR,
   };
 }
 if (typeof window !== 'undefined') {
   window.Domains = {
     IDENTITY_DOMAINS, VISUAL_DOMAINS, ACCESS_DOMAINS, DOMAINS, NOMBRES, APELLIDOS,
     FECHAS_NACIMIENTO, FECHA_ACTUAL, FECHAS_VIGENCIA, NUMEROS_DNI,
+    SELLOS, CODIGOS_QR, REFERENCIA_SELLO, REFERENCIA_QR,
   };
 }
