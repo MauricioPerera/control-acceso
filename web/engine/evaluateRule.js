@@ -1,18 +1,18 @@
-const matchesFilter = (typeof module !== 'undefined')
-  ? require('./matchesFilter.js').matchesFilter
-  : window.Engine.matchesFilter;
-const matchesIdentity = (typeof module !== 'undefined')
-  ? require('./matchesIdentity.js').matchesIdentity
-  : window.Engine.matchesIdentity;
-
 function evaluateRule(regla, attendee) {
+  const matchesFilterFn = (typeof module !== 'undefined')
+    ? require('./matchesFilter.js').matchesFilter
+    : window.Engine.matchesFilter;
+  const matchesIdentityFn = (typeof module !== 'undefined')
+    ? require('./matchesIdentity.js').matchesIdentity
+    : window.Engine.matchesIdentity;
+
   if (regla.tipo === 'documento') {
     const doc = attendee[regla.fuente];
-    const matches = matchesFilter(doc, regla.filtro);
+    const matches = matchesFilterFn(doc, regla.filtro);
     return matches === regla.esperado;
   }
   if (regla.tipo === 'identidad') {
-    return matchesIdentity(attendee.dni, attendee.invitacion);
+    return matchesIdentityFn(attendee.dni, attendee.invitacion);
   }
   throw new Error('Unknown rule type');
 }

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Control de Acceso</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header id="app-header">
+  <h1>Control de Acceso</h1>
+  <div id="score-panel">
+    <span>Turno: <strong id="turno-value">1</strong> / <span id="turno-total">5</span></span>
+    <span>Correctas: <strong id="correct-value">0</strong></span>
+    <span>Incorrectas: <strong id="incorrect-value">0</strong></span>
+  </div>
+</header>
+
+<main id="app-main">
+  <aside id="side-panel">
+    <details class="panel-section" open>
+      <summary>Reglamento vigente</summary>
+      <div class="panel-body">
+        <ul id="reglamento-list"></ul>
+      </div>
+    </details>
+  </aside>
+
+  <section id="card-section">
+    <p class="hint">Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener"
+    para casos que el reglamento pida detener.</p>
+    <div id="card-viewport">
+      <div id="attendee-card">
+        <div id="avatar-container"></div>
+        <div class="doc-box">
+          <h3>DNI</h3>
+          <p><span class="label">Nombre:</span> <span id="dni-nombre"></span> <span id="dni-apellido"></span></p>
+          <p><span class="label">Nacimiento:</span> <span id="dni-fecha"></span></p>
+          <p><span class="label">Genero:</span> <span id="dni-genero"></span></p>
+          <p><span class="label">Nacionalidad:</span> <span id="dni-nacionalidad"></span></p>
+          <p><span class="label">Ciudad:</span> <span id="dni-ciudad"></span></p>
+        </div>
+        <div class="doc-box">
+          <h3>Invitacion</h3>
+          <p><span class="label">Nombre:</span> <span id="inv-nombre"></span> <span id="inv-apellido"></span></p>
+          <p><span class="label">Categoria:</span> <span id="inv-categoria"></span></p>
+          <p><span class="label">Vigente:</span> <span id="inv-vigente"></span></p>
+        </div>
+        <div id="swipe-stamp" class="hidden"></div>
+      </div>
+    </div>
+    <div id="action-buttons">
+      <button type="button" id="btn-rechazar">Rechazar</button>
+      <button type="button" id="btn-detener">Detener</button>
+      <button type="button" id="btn-aprobar">Aprobar</button>
+    </div>
+  </section>
+</main>
+
+<div id="feedback-modal" class="hidden">
+  <div class="modal-box">
+    <h2 id="feedback-title"></h2>
+    <p id="feedback-body"></p>
+    <button id="feedback-close" type="button">Siguiente</button>
+  </div>
+</div>
+
+<div id="end-modal" class="hidden">
+  <div class="modal-box">
+    <h2>Fin del turno</h2>
+    <p id="end-body"></p>
+    <button id="end-close" type="button">Continuar</button>
+  </div>
+</div>
+
+<script src="../data/generator/rng.js"></script>
+<script src="../data/generator/domains.js"></script>
+<script src="../data/generator/mutate.js"></script>
+<script src="../data/generator/avatarParams.js"></script>
+<script src="../data/generator/rollTestimonyValue.js"></script>
+<script src="../data/generator/generateInvitacion.js"></script>
+<script src="engine/matchesFilter.js"></script>
+<script src="engine/matchesIdentity.js"></script>
+<script src="engine/evaluateRule.js"></script>
+<script src="engine/determineCorrectAction.js"></script>
+<script src="engine/interpretSwipe.js"></script>
+<script src="reglamento.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
