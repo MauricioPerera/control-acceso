@@ -6,6 +6,13 @@
   ];
   const MATCH_PROBABILITY = 0.7;
   const REFERENCIAS_SEGURIDAD = { sello: Domains.REFERENCIA_SELLO, qr: Domains.REFERENCIA_QR };
+  const PAGO_POR_CORRECTA = 5;
+  const LIMITE_ERRORES = 3;
+  const TIEMPO_POR_TURNO = 60;
+
+  function requisitoParaTurno(turnoIndex) {
+    return 10 + turnoIndex * 2;
+  }
 
   const state = {
     rng: null,
@@ -15,6 +22,10 @@
     attendeeIndexInTurno: 0,
     correct: 0,
     incorrect: 0,
+    dinero: 0,
+    errores: 0,
+    tiempoRestante: TIEMPO_POR_TURNO,
+    timerHandle: null,
     current: null,
     createAvatar: null,
     avataaars: null,
@@ -84,8 +95,45 @@
 
   function updateScoreDisplay() {
     document.getElementById('turno-value').textContent = String(state.turnoIndex + 1);
-    document.getElementById('correct-value').textContent = String(state.correct);
-    document.getElementById('incorrect-value').textContent = String(state.incorrect);
+    document.getElementById('dinero-value').textContent = String(state.dinero);
+    document.getElementById('requisito-value').textContent = String(requisitoParaTurno(state.turnoIndex));
+    document.getElementById('errores-value').textContent = String(state.errores);
+  }
+
+  function updateTimerDisplay() {
+    const segundos = Math.max(state.tiempoRestante, 0);
+    const m = Math.floor(segundos / 60);
+    const s = segundos % 60;
+    document.getElementById('timer-value').textContent =
+      `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  function startTimerInterval() {
+    state.timerHandle = setInterval(() => {
+      state.tiempoRestante -= 1;
+      updateTimerDisplay();
+      if (state.tiempoRestante <= 0) {
+        stopTimer();
+        endTurno();
+      }
+    }, 1000);
+  }
+
+  function startTimer() {
+    state.tiempoRestante = TIEMPO_POR_TURNO;
+    updateTimerDisplay();
+    startTimerInterval();
+  }
+
+  function stopTimer() {
+    if (state.timerHandle) {
+      clearInterval(state.timerHandle);
+      state.timerHandle = null;
+    }
+  }
+
+  function resumeTimer() {
+    if (!state.gameOver && !state.timerHandle) startTimerInterval();
   }
 
   function showFeedback(wasCorrect, correctAction, chosenAction) {
@@ -100,7 +148,13 @@
     if (state.gameOver || !state.current) return;
     const correctAction = Engine.determineCorrectAction(state.reglasActivas, state.current);
     const wasCorrect = chosenAction === correctAction;
-    if (wasCorrect) state.correct += 1; else state.incorrect += 1;
+    if (wasCorrect) {
+      state.correct += 1;
+      state.dinero += PAGO_POR_CORRECTA;
+    } else {
+      state.incorrect += 1;
+      state.errores += 1;
+    }
     updateScoreDisplay();
     showFeedback(wasCorrect, correctAction, chosenAction);
   }
@@ -116,33 +170,54 @@
   }
 
   function endTurno() {
-    const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
-    if (!nextTurnoData) {
-      endGame();
+    stopTimer();
+    const requisito = requisitoParaTurno(state.turnoIndex);
+    if (state.dinero < requisito) {
+      endGame('dinero', requisito);
       return;
     }
+    const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
+    if (!nextTurnoData) {
+      endGame('victoria');
+      return;
+    }
+    document.getElementById('end-title').textContent = 'Fin del turno';
+    document.getElementById('end-close').textContent = 'Continuar';
     document.getElementById('end-body').textContent =
-      `Turno ${state.turnoIndex + 1} completo. Nueva regla: ${nextTurnoData.regla.descripcion}`;
+      `Turno ${state.turnoIndex + 1} completo. Ganaste $${state.dinero} (requisito $${requisito}). ` +
+      `Nueva regla: ${nextTurnoData.regla.descripcion}`;
     document.getElementById('end-modal').classList.remove('hidden');
   }
 
-  function endGame() {
+  function endGame(reason, extra) {
     state.gameOver = true;
-    document.getElementById('end-body').textContent =
-      `Juego terminado. Correctas: ${state.correct}. Incorrectas: ${state.incorrect}.`;
+    stopTimer();
+    const mensajes = {
+      errores: `Alcanzaste el limite de ${LIMITE_ERRORES} errores. Quedas despedido.`,
+      dinero: `No llegaste al minimo del turno ($${extra}, ganaste $${state.dinero}). No podes pagar tus cuentas.`,
+      victoria: `Cumpliste todos los turnos. Correctas: ${state.correct}. Incorrectas: ${state.incorrect}.`,
+    };
+    document.getElementById('end-title').textContent = reason === 'victoria' ? 'Victoria' : 'Fin de la partida';
+    document.getElementById('end-close').textContent = 'Reiniciar partida';
+    document.getElementById('end-body').textContent = mensajes[reason];
     document.getElementById('end-modal').classList.remove('hidden');
   }
 
   function onEndModalClose() {
     document.getElementById('end-modal').classList.add('hidden');
-    if (state.gameOver) return;
+    if (state.gameOver) {
+      location.reload();
+      return;
+    }
     const nextTurnoData = window.TURNOS[state.turnoIndex + 1];
     if (nextTurnoData) {
       state.turnoIndex += 1;
       state.reglasActivas = window.TURNOS.slice(0, state.turnoIndex + 1).map((t) => resolveHoyPlaceholder(t.regla));
       state.attendeeIndexInTurno = 0;
+      state.dinero = 0;
       renderReglamento();
       updateScoreDisplay();
+      startTimer();
     }
     state.current = generateAttendee();
     renderCard();
@@ -190,9 +265,29 @@
     document.getElementById('btn-detener').addEventListener('click', () => decide('detener'));
     document.getElementById('feedback-close').addEventListener('click', () => {
       document.getElementById('feedback-modal').classList.add('hidden');
-      advance();
+      if (state.errores >= LIMITE_ERRORES) {
+        endGame('errores');
+      } else {
+        advance();
+      }
     });
     document.getElementById('end-close').addEventListener('click', onEndModalClose);
+    document.getElementById('btn-como-jugar').addEventListener('click', () => {
+      stopTimer();
+      document.getElementById('como-jugar-modal').classList.remove('hidden');
+    });
+    document.getElementById('como-jugar-close').addEventListener('click', () => {
+      document.getElementById('como-jugar-modal').classList.add('hidden');
+      resumeTimer();
+    });
+    document.getElementById('btn-reglamento').addEventListener('click', () => {
+      stopTimer();
+      document.getElementById('reglamento-modal').classList.remove('hidden');
+    });
+    document.getElementById('reglamento-close').addEventListener('click', () => {
+      document.getElementById('reglamento-modal').classList.add('hidden');
+      resumeTimer();
+    });
   }
 
   async function init() {
@@ -209,6 +304,7 @@
     renderReglamento();
     updateScoreDisplay();
     wireDrag();
+    startTimer();
 
     state.current = generateAttendee();
     renderCard();

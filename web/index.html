@@ -12,15 +12,18 @@
   <div id="score-panel">
     <span>Hoy: <strong id="fecha-actual"></strong></span>
     <span>Turno: <strong id="turno-value">1</strong> / <span id="turno-total">5</span></span>
-    <span>Correctas: <strong id="correct-value">0</strong></span>
-    <span>Incorrectas: <strong id="incorrect-value">0</strong></span>
+    <span>⏱ <strong id="timer-value">01:00</strong></span>
+    <span>💰 $<strong id="dinero-value">0</strong> / $<strong id="requisito-value">0</strong></span>
+    <span>❌ <strong id="errores-value">0</strong> / 3</span>
+  </div>
+  <div id="header-buttons">
+    <button type="button" id="btn-como-jugar">Cómo jugar</button>
+    <button type="button" id="btn-reglamento">Reglamento vigente</button>
   </div>
 </header>
 
 <main id="app-main">
   <section id="card-section">
-    <p class="hint">Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener"
-    para casos que el reglamento pida detener.</p>
     <div id="card-viewport">
       <div id="attendee-card">
         <div id="avatar-container"></div>
@@ -50,13 +53,6 @@
       <button type="button" id="btn-detener">⚑ Detener</button>
       <button type="button" id="btn-aprobar">✓ Aprobar</button>
     </div>
-
-    <details class="panel-section" id="reglamento-panel">
-      <summary>Reglamento vigente</summary>
-      <div class="panel-body">
-        <ul id="reglamento-list"></ul>
-      </div>
-    </details>
   </section>
 </main>
 
@@ -70,9 +66,29 @@
 
 <div id="end-modal" class="hidden">
   <div class="modal-box">
-    <h2>Fin del turno</h2>
+    <h2 id="end-title">Fin del turno</h2>
     <p id="end-body"></p>
     <button id="end-close" type="button">Continuar</button>
+  </div>
+</div>
+
+<div id="como-jugar-modal" class="hidden">
+  <div class="modal-box">
+    <h2>Cómo jugar</h2>
+    <p>Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener" para casos que
+    el reglamento pida detener.</p>
+    <p>Cada decision correcta paga $5. Al final de cada turno necesitas juntar el minimo indicado
+    o quedas despedido. Un limite de 3 errores tambien termina la partida. El tiempo del turno es
+    total (no por persona): si se acaba, el turno corta ahi con lo que llegaste a procesar.</p>
+    <button id="como-jugar-close" type="button">Cerrar</button>
+  </div>
+</div>
+
+<div id="reglamento-modal" class="hidden">
+  <div class="modal-box">
+    <h2>Reglamento vigente</h2>
+    <ul id="reglamento-list"></ul>
+    <button id="reglamento-close" type="button">Cerrar</button>
   </div>
 </div>
 

@@ -8,11 +8,15 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
 }
 #app-header h1 { font-size: clamp(1rem, 4vw, 1.4rem); margin: 0; }
 #score-panel { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; font-size: 0.78rem; }
+#header-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+#header-buttons button {
+  min-height: 38px; padding: 0.35rem 0.6rem; border-radius: 6px; border: 1px solid #555;
+  background: #2a2a2a; color: #eee; cursor: pointer; font-size: 0.75rem;
+}
 
 #app-main { max-width: 480px; margin: 0 auto; padding: 0.75rem; }
 
 #card-section { display: flex; flex-direction: column; align-items: center; min-width: 0; }
-.hint { font-size: 0.78rem; color: #999; margin: 0 0 0.75rem; text-align: center; }
 
 #card-viewport {
   width: min(360px, 94vw); aspect-ratio: 3 / 4; position: relative; touch-action: none; margin: 0 auto;
@@ -48,24 +52,19 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
 #btn-detener { border-color: #e93; color: #e93; }
 #btn-detener:hover, #btn-detener:active { background: #432; }
 
-#reglamento-panel { width: min(360px, 94vw); margin-top: 1rem; background: #1c1c1c; border-radius: 8px; padding: 0.5rem 0.75rem; }
-.panel-section summary {
-  font-size: 0.9rem; font-weight: bold; cursor: pointer; list-style: none; padding: 0.3rem 0;
-}
-.panel-section summary::-webkit-details-marker { display: none; }
-.panel-section summary::before { content: '▸ '; }
-.panel-section[open] summary::before { content: '▾ '; }
-#reglamento-list { padding-left: 1.1rem; font-size: 0.8rem; margin: 0.4rem 0 0.2rem; }
+#reglamento-list { padding-left: 1.1rem; font-size: 0.8rem; margin: 0.4rem 0 0.2rem; text-align: left; }
 #reglamento-list li { margin-bottom: 0.5rem; }
 
-#feedback-modal, #end-modal {
+#feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center;
   justify-content: center; padding: 1rem;
 }
-#feedback-modal.hidden, #end-modal.hidden { display: none; }
+#feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden { display: none; }
 .modal-box {
   background: #1c1c1c; padding: 1.25rem; border-radius: 8px; width: min(360px, 92vw); text-align: center;
+  max-height: 85vh; overflow-y: auto;
 }
+.modal-box p { text-align: left; font-size: 0.85rem; }
 .modal-box button {
   margin-top: 1rem; padding: 0.6rem 1.2rem; min-height: 44px; border-radius: 6px; border: 1px solid #555;
   background: #2a2a2a; color: #eee; font-size: 0.9rem; cursor: pointer;
