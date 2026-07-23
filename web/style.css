@@ -60,11 +60,11 @@ body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #
 #reglamento-list { padding-left: 1.1rem; font-size: 0.8rem; margin: 0.4rem 0 0.2rem; text-align: left; }
 #reglamento-list li { margin-bottom: 0.5rem; }
 
-#feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal {
+#feedback-modal, #end-modal, #como-jugar-modal, #reglamento-modal, #dia-modal {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center;
   justify-content: center; padding: 1rem;
 }
-#feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden { display: none; }
+#feedback-modal.hidden, #end-modal.hidden, #como-jugar-modal.hidden, #reglamento-modal.hidden, #dia-modal.hidden { display: none; }
 .modal-box {
   background: #1c1c1c; padding: 1.25rem; border-radius: 8px; width: min(360px, 92vw); text-align: center;
   max-height: 85vh; overflow-y: auto;

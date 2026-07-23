@@ -63,14 +63,32 @@
     return avatar.toString();
   }
 
-  function renderReglamento() {
-    const list = document.getElementById('reglamento-list');
+  function renderReglasList(ulId) {
+    const list = document.getElementById(ulId);
     list.innerHTML = '';
     for (const regla of state.reglasActivas) {
       const li = document.createElement('li');
       li.textContent = regla.descripcion;
       list.appendChild(li);
     }
+  }
+
+  function renderReglamento() {
+    renderReglasList('reglamento-list');
+  }
+
+  function showDiaModal() {
+    document.getElementById('dia-turno-num').textContent = String(state.turnoIndex + 1);
+    document.getElementById('dia-requisito').textContent = String(requisitoParaTurno(state.turnoIndex));
+    renderReglasList('dia-reglas-list');
+    document.getElementById('dia-modal').classList.remove('hidden');
+  }
+
+  function onIniciarJornada() {
+    document.getElementById('dia-modal').classList.add('hidden');
+    state.current = generateAttendee();
+    renderCard();
+    startTimer();
   }
 
   function renderCard() {
@@ -252,10 +270,8 @@
       state.dinero = 0;
       renderReglamento();
       updateScoreDisplay();
-      startTimer();
     }
-    state.current = generateAttendee();
-    renderCard();
+    showDiaModal();
   }
 
   function wireDrag() {
@@ -307,6 +323,7 @@
       }
     });
     document.getElementById('end-close').addEventListener('click', onEndModalClose);
+    document.getElementById('dia-iniciar').addEventListener('click', onIniciarJornada);
     document.getElementById('btn-como-jugar').addEventListener('click', () => {
       stopTimer();
       document.getElementById('como-jugar-modal').classList.remove('hidden');
@@ -339,10 +356,7 @@
     renderReglamento();
     updateScoreDisplay();
     wireDrag();
-    startTimer();
-
-    state.current = generateAttendee();
-    renderCard();
+    showDiaModal();
   }
 
   init();
