@@ -1,60 +1,77 @@
 * { box-sizing: border-box; }
+html, body { height: 100%; }
 body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #eee; }
 
 #app-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0.75rem 1.5rem; background: #1c1c1c; border-bottom: 1px solid #333;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 1rem; background: #1c1c1c; border-bottom: 1px solid #333;
 }
-#score-panel { display: flex; gap: 1.5rem; font-size: 0.9rem; }
+#app-header h1 { font-size: clamp(1rem, 4vw, 1.4rem); margin: 0; }
+#score-panel { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; font-size: 0.78rem; }
 
-#app-main { display: grid; grid-template-columns: 260px 1fr; gap: 1rem; padding: 1rem; }
-
-#side-panel { background: #1c1c1c; padding: 1rem; border-radius: 8px; align-self: start; }
-.panel-section summary { font-size: 1rem; font-weight: bold; cursor: pointer; list-style: none; }
-.panel-section summary::-webkit-details-marker { display: none; }
-.panel-section summary::before { content: '▸ '; }
-.panel-section[open] summary::before { content: '▾ '; }
-#reglamento-list { padding-left: 1.2rem; font-size: 0.85rem; }
-#reglamento-list li { margin-bottom: 0.5rem; }
+#app-main { max-width: 480px; margin: 0 auto; padding: 0.75rem; }
 
 #card-section { display: flex; flex-direction: column; align-items: center; min-width: 0; }
-.hint { font-size: 0.8rem; color: #999; margin: 0 0 0.75rem; text-align: center; }
+.hint { font-size: 0.78rem; color: #999; margin: 0 0 0.75rem; text-align: center; }
 
-#card-viewport { width: 100%; max-width: 360px; height: 480px; position: relative; touch-action: none; }
+#card-viewport {
+  width: min(360px, 94vw); aspect-ratio: 3 / 4; position: relative; touch-action: none; margin: 0 auto;
+}
 #attendee-card {
-  position: absolute; inset: 0; background: #1c1c1c; border-radius: 12px; padding: 1rem;
-  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-  cursor: grab; user-select: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  position: absolute; inset: 0; background: #1c1c1c; border-radius: 12px; padding: 0.85rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  cursor: grab; user-select: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); touch-action: none;
 }
 #attendee-card.dragging { cursor: grabbing; transition: none; }
 #attendee-card.snap-back { transition: transform 0.25s ease-out; }
-#avatar-container svg { width: 96px; height: 96px; }
-.doc-box { width: 100%; background: #262626; border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.82rem; }
-.doc-box h3 { margin: 0 0 0.3rem; font-size: 0.85rem; color: #6cf; }
-.doc-box p { margin: 0.15rem 0; }
+#avatar-container svg { width: clamp(64px, 22vw, 96px); height: clamp(64px, 22vw, 96px); }
+.doc-box { width: 100%; background: #262626; border-radius: 6px; padding: 0.45rem 0.65rem; font-size: 0.78rem; }
+.doc-box h3 { margin: 0 0 0.25rem; font-size: 0.8rem; color: #6cf; }
+.doc-box p { margin: 0.12rem 0; }
 .label { color: #999; }
 
 #swipe-stamp {
-  position: absolute; top: 20px; padding: 0.3rem 1rem; border: 3px solid; border-radius: 6px;
-  font-size: 1.3rem; font-weight: bold; transform: rotate(-15deg); pointer-events: none;
+  position: absolute; top: 16px; padding: 0.25rem 0.85rem; border: 3px solid; border-radius: 6px;
+  font-size: 1.15rem; font-weight: bold; transform: rotate(-15deg); pointer-events: none;
 }
 #swipe-stamp.hidden { display: none; }
-#swipe-stamp.aprobar { color: #3b6; border-color: #3b6; right: 20px; }
-#swipe-stamp.rechazar { color: #e33; border-color: #e33; left: 20px; transform: rotate(15deg); }
+#swipe-stamp.aprobar { color: #3b6; border-color: #3b6; right: 16px; }
+#swipe-stamp.rechazar { color: #e33; border-color: #e33; left: 16px; transform: rotate(15deg); }
 
-#action-buttons { display: flex; gap: 0.75rem; margin-top: 1rem; }
+#action-buttons { display: flex; gap: 0.5rem; margin-top: 0.85rem; width: min(360px, 94vw); }
 #action-buttons button {
-  padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #555; background: #2a2a2a;
-  color: #eee; cursor: pointer; font-size: 0.9rem;
+  flex: 1; min-height: 44px; padding: 0.5rem 0.3rem; border-radius: 6px; border: 1px solid #555;
+  background: #2a2a2a; color: #eee; cursor: pointer; font-size: 0.82rem;
 }
-#btn-rechazar:hover { background: #522; }
-#btn-aprobar:hover { background: #252; }
+#btn-rechazar:hover, #btn-rechazar:active { background: #522; }
+#btn-aprobar:hover, #btn-aprobar:active { background: #252; }
 #btn-detener { border-color: #e93; color: #e93; }
-#btn-detener:hover { background: #432; }
+#btn-detener:hover, #btn-detener:active { background: #432; }
+
+#reglamento-panel { width: min(360px, 94vw); margin-top: 1rem; background: #1c1c1c; border-radius: 8px; padding: 0.5rem 0.75rem; }
+.panel-section summary {
+  font-size: 0.9rem; font-weight: bold; cursor: pointer; list-style: none; padding: 0.3rem 0;
+}
+.panel-section summary::-webkit-details-marker { display: none; }
+.panel-section summary::before { content: '▸ '; }
+.panel-section[open] summary::before { content: '▾ '; }
+#reglamento-list { padding-left: 1.1rem; font-size: 0.8rem; margin: 0.4rem 0 0.2rem; }
+#reglamento-list li { margin-bottom: 0.5rem; }
 
 #feedback-modal, #end-modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center;
+  justify-content: center; padding: 1rem;
 }
 #feedback-modal.hidden, #end-modal.hidden { display: none; }
-.modal-box { background: #1c1c1c; padding: 1.5rem; border-radius: 8px; max-width: 400px; text-align: center; }
-.modal-box button { margin-top: 1rem; padding: 0.4rem 1rem; }
+.modal-box {
+  background: #1c1c1c; padding: 1.25rem; border-radius: 8px; width: min(360px, 92vw); text-align: center;
+}
+.modal-box button {
+  margin-top: 1rem; padding: 0.6rem 1.2rem; min-height: 44px; border-radius: 6px; border: 1px solid #555;
+  background: #2a2a2a; color: #eee; font-size: 0.9rem; cursor: pointer;
+}
+
+@media (min-width: 700px) {
+  #app-main { max-width: 560px; padding: 1.5rem; }
+  #app-header { padding: 0.75rem 1.5rem; }
+}

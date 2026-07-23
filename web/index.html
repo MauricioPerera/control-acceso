@@ -17,15 +17,6 @@
 </header>
 
 <main id="app-main">
-  <aside id="side-panel">
-    <details class="panel-section" open>
-      <summary>Reglamento vigente</summary>
-      <div class="panel-body">
-        <ul id="reglamento-list"></ul>
-      </div>
-    </details>
-  </aside>
-
   <section id="card-section">
     <p class="hint">Arrastra la tarjeta: derecha = aprobar, izquierda = rechazar. Usa "Detener"
     para casos que el reglamento pida detener.</p>
@@ -50,10 +41,17 @@
       </div>
     </div>
     <div id="action-buttons">
-      <button type="button" id="btn-rechazar">Rechazar</button>
-      <button type="button" id="btn-detener">Detener</button>
-      <button type="button" id="btn-aprobar">Aprobar</button>
+      <button type="button" id="btn-rechazar">✕ Rechazar</button>
+      <button type="button" id="btn-detener">⚑ Detener</button>
+      <button type="button" id="btn-aprobar">✓ Aprobar</button>
     </div>
+
+    <details class="panel-section" id="reglamento-panel">
+      <summary>Reglamento vigente</summary>
+      <div class="panel-body">
+        <ul id="reglamento-list"></ul>
+      </div>
+    </details>
   </section>
 </main>
 
